@@ -1,11 +1,8 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import { FormValueTypes } from "@/types";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,6 +15,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { createSavingsListing } from "@/app/actions";
+import prisma from "@/app/lib/db";
+import { useEffect, useState } from "react";
+
+type SavingsData = {
+  principal: number;
+  rateOfReturn: number;
+  numberOfCompoundingYears: number;
+  numberOfSavingYears: number;
+  contribution: number;
+  id: string;
+};
 
 const FormSchema = z.object({
   principal: z
@@ -28,27 +36,72 @@ const FormSchema = z.object({
   numberOfCompoundingYears: z.number().min(1).max(100),
   numberOfSavingYears: z.number().min(1).max(100),
   contribution: z.number().min(0).max(100000),
+  userId: z.string(),
+  id: z.string(),
 });
 
 export function SavingsForm({
-  onUpdateFormValues,
+  savingsData,
+  userId,
+  setStateSavingsData,
 }: {
-  onUpdateFormValues: (values: FormValueTypes) => void;
+  savingsData: SavingsData;
+  userId: any;
+  setStateSavingsData: React.Dispatch<React.SetStateAction<SavingsData>>;
 }) {
+  // const [data, setData] = useState<SavingsData | null>(null);
+
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const fetchedData = await prisma.savings.findFirst({
+  //       where: { userId: userId },
+  //       select: {
+  //         id: true,
+  //         principal: true,
+  //         rateOfReturn: true,
+  //         numberOfCompoundingYears: true,
+  //         numberOfSavingYears: true,
+  //         contribution: true,
+  //       },
+  //     });
+  //     setData(fetchedData);
+  //   }
+
+  //   fetchData();
+  // }, [userId]);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      principal: 1000,
-      rateOfReturn: 0.07,
-      numberOfCompoundingYears: 30,
-      numberOfSavingYears: 30,
-      contribution: 1000,
+      principal: savingsData?.principal || 1000,
+      rateOfReturn: savingsData?.rateOfReturn || 0.07,
+      numberOfCompoundingYears: savingsData?.numberOfCompoundingYears || 30,
+      numberOfSavingYears: savingsData?.numberOfSavingYears || 30,
+      contribution: savingsData?.contribution || 1000,
+      userId: userId,
+      id: savingsData?.id || "1234",
     },
   });
 
+  // useEffect(() => {
+  //   if (data) {
+  //     form.reset({
+  //       principal: data.principal,
+  //       rateOfReturn: data.rateOfReturn,
+  //       numberOfCompoundingYears: data.numberOfCompoundingYears,
+  //       numberOfSavingYears: data.numberOfSavingYears,
+  //       contribution: data.contribution,
+  //       userId: userId,
+  //     });
+  //   }
+  // }, [data, form, userId]);
+
   function onSubmit(values: z.infer<typeof FormSchema>) {
     console.log(values);
-    onUpdateFormValues(values);
+    // onUpdateFormValues(values);
+    createSavingsListing(values);
+    const { userId, ...newValues } = values;
+    setStateSavingsData(newValues as SavingsData);
   }
 
   function handleInputChange(field: any) {
@@ -57,15 +110,11 @@ export function SavingsForm({
       field.onChange(value);
     };
   }
+  console.log("id", savingsData?.id);
 
   return (
     <Form {...form}>
-      <form
-        action={"/api/create-savings"}
-        method="post"
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full space-y-3"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-3">
         <FormField
           control={form.control}
           name="principal"
@@ -82,7 +131,6 @@ export function SavingsForm({
                   onChange={handleInputChange(field)}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -103,7 +151,6 @@ export function SavingsForm({
                   onChange={handleInputChange(field)}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -125,7 +172,6 @@ export function SavingsForm({
                   onChange={handleInputChange(field)}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -147,7 +193,6 @@ export function SavingsForm({
                   onChange={handleInputChange(field)}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -169,7 +214,6 @@ export function SavingsForm({
                   onChange={handleInputChange(field)}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}

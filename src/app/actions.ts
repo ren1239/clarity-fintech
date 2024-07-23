@@ -5,12 +5,12 @@ import { Savings } from "@prisma/client";
 
 type FormData = {
   userId: string;
-  savingsId: string;
   principal: number;
   rateOfReturn: number;
   numberOfCompoundingYears: number;
   numberOfSavingYears: number;
   contribution: number;
+  id: string;
 };
 
 export async function createSavingsListing(formData: FormData) {
@@ -21,7 +21,7 @@ export async function createSavingsListing(formData: FormData) {
     numberOfCompoundingYears,
     numberOfSavingYears,
     contribution,
-    savingsId,
+    id,
   } = formData;
 
   // Check if the user already has a savings listing
@@ -43,12 +43,11 @@ export async function createSavingsListing(formData: FormData) {
         contribution: contribution,
       },
     });
-    return data;
   } else {
     // If listing exists, update it
     const data = await prisma.savings.update({
       where: {
-        id: savingsId,
+        id: id,
       },
       data: {
         principal: principal,

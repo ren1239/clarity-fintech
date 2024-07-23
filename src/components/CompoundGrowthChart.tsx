@@ -20,8 +20,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import { CombinedResult } from "@/types";
+import { CombinedResult, FormValueTypes } from "@/types";
 import { useEffect, useState } from "react";
+import prisma from "@/app/lib/db";
 
 const chartConfig = {
   Networth: {
@@ -41,11 +42,50 @@ const moneyFormatter = (value: number) => {
   return numeral(value).format("$0,0");
 };
 
+type SavingsData = {
+  principal: number;
+  rateOfReturn: number;
+  numberOfCompoundingYears: number;
+  numberOfSavingYears: number;
+  contribution: number;
+  id: string;
+};
+
 export default function CompoundGrowthChart({
-  combinedArray,
+  stateSavingsData,
 }: {
-  combinedArray: CombinedResult[];
+  stateSavingsData: SavingsData;
 }) {
+  const [combinedArray, setCombinedArray] = useState<CombinedResult[]>([]);
+
+  const [formValues, setFormValues] = useState<FormValueTypes>({
+    principal: stateSavingsData?.principal || 1000,
+    rateOfReturn: stateSavingsData?.rateOfReturn || 0.07,
+    numberOfCompoundingYears: stateSavingsData?.numberOfCompoundingYears || 30,
+    numberOfSavingYears: stateSavingsData?.numberOfSavingYears || 30,
+    contribution: stateSavingsData?.contribution || 1000,
+  });
+
+  useEffect(() => {
+    setFormValues(stateSavingsData);
+    const {
+      principal,
+      rateOfReturn,
+      numberOfCompoundingYears,
+      numberOfSavingYears,
+      contribution,
+    } = formValues;
+
+    const totals = calculateGrowth(
+      principal,
+      rateOfReturn,
+      numberOfCompoundingYears,
+      numberOfSavingYears,
+      contribution
+    );
+    setCombinedArray(totals);
+  }, [formValues, stateSavingsData]);
+
   const [savings, setSavings] = useState<number>(0);
   const [compound, setCompound] = useState<number>(0);
 
@@ -121,8 +161,8 @@ export default function CompoundGrowthChart({
               dataKey="year"
               tickLine={false}
               axisLine={false}
-              tickMargin={10}
-              minTickGap={100}
+              tickMargin={8}
+              minTickGap={32}
               tickFormatter={(value) => `Year ${value}`}
             />
             <ChartTooltip
@@ -156,3 +196,36 @@ export default function CompoundGrowthChart({
     </Card>
   );
 }
+
+const calculateGrowth = (
+  principal: number,
+  rate: number,
+  years: number,
+  savingYears: number,
+  contribution: number
+): CombinedResult[] => {
+  let compoundAmount = principal;
+  let standardAmount = principal;
+
+  const totals: CombinedResult[] = [];
+
+  for (let year = 1; year <= years; year++) {
+    // Compound interest calculation
+    compoundAmount *= rate + 1;
+
+    // Standard (simple) interest calculation
+    standardAmount += principal * rate;
+
+    if (year <= savingYears) {
+      compoundAmount += contribution;
+      standardAmount += contribution;
+    }
+
+    totals.push({
+      year: year.toString(),
+      compound: parseFloat(compoundAmount.toFixed()),
+      standard: parseFloat(standardAmount.toFixed()),
+    });
+  }
+  return totals;
+};
