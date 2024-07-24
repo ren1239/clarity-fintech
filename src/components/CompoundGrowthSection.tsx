@@ -33,9 +33,7 @@ export default function CompoundGrowthSection({
   });
 
   useEffect(() => {
-    console.log("im updating");
     setStateSavingsData(stateSavingsData);
-    console.log("setter", stateSavingsData);
   }, [stateSavingsData]);
 
   return (

@@ -22,7 +22,6 @@ import {
 
 import { CombinedResult, FormValueTypes } from "@/types";
 import { useEffect, useState } from "react";
-import prisma from "@/app/lib/db";
 
 const chartConfig = {
   Networth: {
@@ -100,7 +99,7 @@ export default function CompoundGrowthChart({
     <Card className="h-full">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Net Worth</CardTitle>
+          <CardTitle>Net Worth - Compounding</CardTitle>
           <CardDescription className="text-xs">
             Simply by investing your money, you will have
             <span className="text-primary font-semibold">
@@ -209,12 +208,14 @@ const calculateGrowth = (
 
   const totals: CombinedResult[] = [];
 
+  // year 1 - 10 000 ,
+
   for (let year = 1; year <= years; year++) {
     // Compound interest calculation
     compoundAmount *= rate + 1;
 
     // Standard (simple) interest calculation
-    standardAmount += principal * rate;
+    standardAmount += 0;
 
     if (year <= savingYears) {
       compoundAmount += contribution;

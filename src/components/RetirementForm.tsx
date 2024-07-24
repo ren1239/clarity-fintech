@@ -1,8 +1,10 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { RetirementDataType } from "@/types";
 import {
   Form,
   FormControl,
@@ -11,56 +13,53 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { createSavingsListing } from "@/app/actions";
+} from "./ui/form";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
-import { SavingsData } from "@/types";
+//Create the form Schema
 
 const FormSchema = z.object({
-  principal: z
-    .number()
-    .min(1, "Value must be at least 1")
-    .max(1000000, "Value must be at most 1,000,000"),
+  retirementAmount: z.number().min(0),
   rateOfReturn: z.number().min(0.01).max(1),
   numberOfCompoundingYears: z.number().min(1).max(100),
-  numberOfSavingYears: z.number().min(1).max(100),
-  contribution: z.number().min(0).max(100000),
+  annualExpenses: z.number().min(1),
   userId: z.string(),
   id: z.string(),
 });
 
-export function SavingsForm({
-  savingsData,
+export default function RetirementForm({
   userId,
-  setStateSavingsData,
+  setStateRetirementData,
 }: {
-  savingsData: SavingsData;
-  userId: any;
-  setStateSavingsData: React.Dispatch<React.SetStateAction<SavingsData>>;
+  userId: string;
+  setStateRetirementData: React.Dispatch<
+    React.SetStateAction<RetirementDataType>
+  >;
 }) {
+  //Call the use form hook and set the default values, the resolver allows type safety to persist
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      principal: savingsData?.principal || 1000,
-      rateOfReturn: savingsData?.rateOfReturn || 0.07,
-      numberOfCompoundingYears: savingsData?.numberOfCompoundingYears || 30,
-      numberOfSavingYears: savingsData?.numberOfSavingYears || 30,
-      contribution: savingsData?.contribution || 1000,
+      retirementAmount: 1000000,
+      rateOfReturn: 0.07,
+      numberOfCompoundingYears: 30,
+      annualExpenses: 35000,
       userId: userId,
-      id: savingsData?.id || "1234",
+      id: "1234",
     },
   });
 
+  //Create the submit form button. Update the state with a callback function.
   function onSubmit(values: z.infer<typeof FormSchema>) {
     if (values.userId !== "guest") {
-      createSavingsListing(values);
     }
     const { userId, ...newValues } = values;
-    setStateSavingsData(newValues as SavingsData);
+    setStateRetirementData(newValues as RetirementDataType);
   }
 
+  //Create the handler to return a callback function to pasefloat the input, or return null
   function handleInputChange(field: any) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value ? parseFloat(event.target.value) : null;
@@ -71,12 +70,14 @@ export function SavingsForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-3">
+        {/* Retirement Amount */}
+
         <FormField
           control={form.control}
-          name="principal"
+          name="retirementAmount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Principal</FormLabel>
+              <FormLabel>Retirement Net Worth</FormLabel>
               <FormDescription className=" text-xs">
                 What is your starting point?
               </FormDescription>
@@ -91,6 +92,8 @@ export function SavingsForm({
             </FormItem>
           )}
         />
+
+        {/* Rate of Return */}
         <FormField
           control={form.control}
           name="rateOfReturn"
@@ -111,12 +114,14 @@ export function SavingsForm({
             </FormItem>
           )}
         />
+
+        {/* Number of Compounding Years */}
         <FormField
           control={form.control}
           name="numberOfCompoundingYears"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Total years</FormLabel>
+              <FormLabel>Total years retired</FormLabel>
               <FormDescription className=" text-xs">
                 The average male expects to live until 87 years old
               </FormDescription>
@@ -131,15 +136,16 @@ export function SavingsForm({
             </FormItem>
           )}
         />
+
+        {/* Number of Compounding Years */}
         <FormField
           control={form.control}
-          name="numberOfSavingYears"
+          name="annualExpenses"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Years to retirement</FormLabel>
+              <FormLabel>Annual Expense</FormLabel>
               <FormDescription className=" text-xs">
-                At your current rate of saving, how many years do you expect to
-                continue?
+                How much do you plan to spend each year?
               </FormDescription>
               <FormControl>
                 <Input
@@ -152,29 +158,11 @@ export function SavingsForm({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="contribution"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Annually savings</FormLabel>
-              <FormDescription className=" text-xs">
-                How much money can you save each year
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={handleInputChange(field)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button className="w-full pt-2" type="submit">
-          Submit
-        </Button>
+        <div className="lg:pt-[124px]">
+          <Button className="w-full pt-2" type="submit">
+            Submit
+          </Button>
+        </div>
       </form>
     </Form>
   );

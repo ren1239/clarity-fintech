@@ -52,13 +52,13 @@ export default async function Navbar() {
               Compound Calculator
             </Link>
             <Link
-              href="/compound_calculator"
+              href="/retirement_calculator"
               className={buttonVariants({
                 variant: "ghost",
                 size: "sm",
               })}
             >
-              Valuation
+              Retirement Calculator
             </Link>
           </div>
 
