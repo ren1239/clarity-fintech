@@ -5,13 +5,15 @@ import { SavingsForm } from "@/components/SavingsForm";
 import { Card } from "@/components/ui/card";
 import { SavingsData } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { redirect } from "next/navigation";
+import { unstable_noStore as noStore } from "next/cache";
 
 export default async function CompoundCalculatorPage({
   params,
 }: {
   params: { id: string };
 }) {
+  noStore();
+
   //Find the user from kindeServer Session or bounce an unknown user
 
   const { getUser } = getKindeServerSession();
