@@ -27,6 +27,7 @@ model Savings {
   numberOfCompoundingYears Int
   numberOfSavingYears      Int
   contribution             Int
+  annualExpense            Int
 
   userId String
   User   User?  @relation(fields: [userId], references: [id])

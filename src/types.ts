@@ -33,6 +33,7 @@ export interface SavingsData {
   numberOfCompoundingYears: number;
   numberOfSavingYears: number;
   contribution: number;
+  annualExpense: number;
   id: string;
 }
 

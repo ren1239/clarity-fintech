@@ -1,4 +1,7 @@
 "use client";
+
+// React hook form requires client component
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,6 +20,10 @@ import { Input } from "@/components/ui/input";
 import { createSavingsListing } from "@/app/actions";
 
 import { SavingsData } from "@/types";
+import { useFormStatus } from "react-dom";
+import { Loader2 } from "lucide-react";
+import { SubmitButton } from "./SubmitButtons";
+import { useState } from "react";
 
 const FormSchema = z.object({
   principal: z
@@ -27,39 +34,47 @@ const FormSchema = z.object({
   numberOfCompoundingYears: z.number().min(1).max(100),
   numberOfSavingYears: z.number().min(1).max(100),
   contribution: z.number().min(0).max(100000),
+  annualExpense: z.number().min(0).max(1000000),
   userId: z.string(),
   id: z.string(),
 });
 
 export function SavingsForm({
-  savingsData,
+  dbData,
   userId,
-  setStateSavingsData,
 }: {
-  savingsData: SavingsData;
+  dbData: SavingsData;
   userId: any;
-  setStateSavingsData: React.Dispatch<React.SetStateAction<SavingsData>>;
 }) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      principal: savingsData?.principal || 1000,
-      rateOfReturn: savingsData?.rateOfReturn || 0.07,
-      numberOfCompoundingYears: savingsData?.numberOfCompoundingYears || 30,
-      numberOfSavingYears: savingsData?.numberOfSavingYears || 30,
-      contribution: savingsData?.contribution || 1000,
+      principal: dbData?.principal || 1000,
+      rateOfReturn: dbData?.rateOfReturn || 0.07,
+      numberOfCompoundingYears: dbData?.numberOfCompoundingYears || 30,
+      numberOfSavingYears: dbData?.numberOfSavingYears || 30,
+      contribution: dbData?.contribution || 1000,
+      annualExpense: dbData?.annualExpense || 350000,
       userId: userId,
-      id: savingsData?.id || "1234",
+      id: dbData?.id || "guestData",
     },
   });
 
-  function onSubmit(values: z.infer<typeof FormSchema>) {
-    if (values.userId !== "guest") {
-      createSavingsListing(values);
+  const [pending, setPending] = useState(false);
+
+  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
+    setPending(true);
+    try {
+      await createSavingsListing(values);
+    } catch (error) {
+      console.error("Submission failed", error);
+    } finally {
+      setPending(false);
     }
-    const { userId, ...newValues } = values;
-    setStateSavingsData(newValues as SavingsData);
-  }
+  };
+
+  // const { userId, ...newValues } = values;
+  // setStateSavingsData(newValues as SavingsData);
 
   function handleInputChange(field: any) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +85,10 @@ export function SavingsForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-3">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full flex flex-col justify-between h-full"
+      >
         <FormField
           control={form.control}
           name="principal"
@@ -138,8 +156,7 @@ export function SavingsForm({
             <FormItem>
               <FormLabel>Years to retirement</FormLabel>
               <FormDescription className=" text-xs">
-                At your current rate of saving, how many years do you expect to
-                continue?
+                How many years will you save for?
               </FormDescription>
               <FormControl>
                 <Input
@@ -172,9 +189,27 @@ export function SavingsForm({
             </FormItem>
           )}
         />
-        <Button className="w-full pt-2" type="submit">
-          Submit
-        </Button>
+        <FormField
+          control={form.control}
+          name="annualExpense"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Annually expense</FormLabel>
+              <FormDescription className=" text-xs">
+                How much money do you expect to spend?
+              </FormDescription>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="number"
+                  onChange={handleInputChange(field)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <SubmitButton pending={pending} />
       </form>
     </Form>
   );
