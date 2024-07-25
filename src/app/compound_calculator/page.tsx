@@ -4,28 +4,31 @@ import DecorativeBackground from "@/components/decorative/DecorativeBackground";
 import { SavingsForm } from "@/components/SavingsForm";
 import { Card } from "@/components/ui/card";
 import { SavingsData } from "@/types";
+import { unstable_noStore as noStore } from "next/cache";
 
 export default async function CompoundCalculatorPage({
   params,
 }: {
   params: { id: string };
 }) {
-  // Define the data from the server
+  noStore();
 
-  const savingsData = await prisma.savings.findFirst({
-    where: {
-      userId: params.id,
-    },
-    select: {
-      id: true,
-      principal: true,
-      rateOfReturn: true,
-      numberOfCompoundingYears: true,
-      numberOfSavingYears: true,
-      contribution: true,
-      annualExpense: true,
-    },
-  });
+  // // Define the data from the server
+
+  // const savingsData = await prisma.savings.findFirst({
+  //   where: {
+  //     userId: params.id,
+  //   },
+  //   select: {
+  //     id: true,
+  //     principal: true,
+  //     rateOfReturn: true,
+  //     numberOfCompoundingYears: true,
+  //     numberOfSavingYears: true,
+  //     contribution: true,
+  //     annualExpense: true,
+  //   },
+  // });
 
   // Define default values
   const defaultSavingsData = {
@@ -42,7 +45,7 @@ export default async function CompoundCalculatorPage({
 
   const dbData: SavingsData = {
     ...defaultSavingsData,
-    ...savingsData,
+    // ...savingsData,
   };
 
   return (
