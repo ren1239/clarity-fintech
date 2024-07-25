@@ -27,7 +27,7 @@ export default async function CompoundCalculatorPage({
 
   const savingsData = await prisma.savings.findFirst({
     where: {
-      userId: params.id,
+      userId: user?.id,
     },
     select: {
       id: true,
