@@ -33,24 +33,24 @@ export default function DropDownBurger() {
         <DropdownMenuItem>
           {" "}
           <Link
-            href="/pricing"
+            href="/compound_calculator"
             className={buttonVariants({
               variant: "ghost",
               size: "sm",
             })}
           >
-            Compound Calculator
+            Life Calculator
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Link
-            href="/pricing"
+            href="/retirement_calculator"
             className={buttonVariants({
               variant: "ghost",
               size: "sm",
             })}
           >
-            Valuation
+            Retirement
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
