@@ -147,7 +147,6 @@ const ChartTooltipContent = React.forwardRef<
           : itemConfig?.label;
 
       if (labelFormatter) {
-        console.log("tooltip labelFormatter value:", value);
         return (
           <div className={cn("font-medium", labelClassName)}>
             {labelFormatter(value, payload)}
@@ -175,8 +174,6 @@ const ChartTooltipContent = React.forwardRef<
     }
 
     const nestLabel = payload.length === 1 && indicator !== "dot";
-
-    console.log("tooltip payload:", payload);
 
     return (
       <div

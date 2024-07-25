@@ -39,22 +39,26 @@ export default async function Navbar() {
               Pricing
             </Link>
             <Link
-              href="/compound_calculator"
+              href={
+                user
+                  ? `/compound_calculator/${user?.id}`
+                  : `/compound_calculator`
+              }
               className={buttonVariants({
                 variant: "ghost",
                 size: "sm",
               })}
             >
-              Compound Calculator
+              Life Calculator
             </Link>
             <Link
-              href="/compound_calculator"
+              href="/retirement_calculator"
               className={buttonVariants({
                 variant: "ghost",
                 size: "sm",
               })}
             >
-              Valuation
+              Retirement
             </Link>
           </div>
 
