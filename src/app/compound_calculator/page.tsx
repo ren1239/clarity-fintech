@@ -4,7 +4,9 @@ import DecorativeBackground from "@/components/decorative/DecorativeBackground";
 import { SavingsForm } from "@/components/SavingsForm";
 import { Card } from "@/components/ui/card";
 import { SavingsData } from "@/types";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
+import { redirect } from "next/navigation";
 
 export default async function CompoundCalculatorPage({
   params,
@@ -12,6 +14,15 @@ export default async function CompoundCalculatorPage({
   params: { id: string };
 }) {
   noStore();
+
+  //Find the user from kindeServer Session or bounce an unknown user
+
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/api/auth/register?");
+  }
 
   // // Define the data from the server
 
