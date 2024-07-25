@@ -23,6 +23,7 @@ export default async function CompoundCalculatorPage({
       numberOfCompoundingYears: true,
       numberOfSavingYears: true,
       contribution: true,
+      annualExpense: true,
     },
   });
 
@@ -34,6 +35,7 @@ export default async function CompoundCalculatorPage({
     numberOfCompoundingYears: 30,
     numberOfSavingYears: 30,
     contribution: 24000,
+    annualExpense: 35000,
   };
 
   //If savingsData exists, it will overide the default values
