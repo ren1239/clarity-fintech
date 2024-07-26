@@ -45,7 +45,7 @@ export function SavingsForm({
 }: {
   dbData: SavingsData;
   userId: any;
-  setDefaultSavingsData: Dispatch<SetStateAction<SavingsData>>;
+  setDefaultSavingsData: any;
 }) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),

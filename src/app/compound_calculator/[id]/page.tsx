@@ -58,6 +58,8 @@ export default async function CompoundCalculatorPage({
     ...savingsData,
   };
 
+  const setDefaultSavingsData = null;
+
   return (
     <>
       <div className=" flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
@@ -73,7 +75,7 @@ export default async function CompoundCalculatorPage({
             <SavingsForm
               dbData={dbData!}
               userId={params.id}
-              // setStateSavingsData={setStateSavingsData}
+              setDefaultSavingsData={setDefaultSavingsData}
             />
           </div>
         </div>
