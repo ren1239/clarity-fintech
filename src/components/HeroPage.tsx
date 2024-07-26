@@ -93,7 +93,7 @@ export default function HeroPage() {
               <span className="text-sm font-medium text-primary">Step 2</span>
               <span className="text-xl font-semibold">Start here!</span>
               <span className="mt-2 text-zinc-700">
-                Answer 5 questions on where you're starting out
+                Answer 5 questions on where you are starting out
               </span>
             </div>
           </li>
@@ -102,7 +102,8 @@ export default function HeroPage() {
               <span className="text-sm font-medium text-primary">Step 3</span>
               <span className="text-xl font-semibold">Let us work!</span>
               <span className="mt-2 text-zinc-700">
-                We'll do the investment calculation and watch your future grow!
+                We will do the investment calculation and watch your future
+                grow!
               </span>
             </div>
           </li>
