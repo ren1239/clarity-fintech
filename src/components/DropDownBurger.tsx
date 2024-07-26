@@ -23,7 +23,7 @@ export default async function DropDownBurger() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem>
-          <Link
+          {/* <Link
             href="/pricing"
             className={buttonVariants({
               variant: "ghost",
@@ -31,7 +31,7 @@ export default async function DropDownBurger() {
             })}
           >
             Pricing
-          </Link>
+          </Link> */}
         </DropdownMenuItem>
         <DropdownMenuItem>
           {" "}

@@ -5,6 +5,7 @@ import { buttonVariants } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import DecorativeBackground from "./decorative/DecorativeBackground";
+import { RegisterLink } from "@kinde-oss/kinde-auth-nextjs/components";
 
 export default function HeroPage() {
   return (
@@ -12,23 +13,23 @@ export default function HeroPage() {
       <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center relative">
         <h1 className=" relative max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl ">
           Financial
-          <span className="text-green-700"> freedom </span>begins with clarity.
+          <span className="text-primary"> freedom </span>begins with clarity.
           <div className="absolute  -top-32 -right-16 hidden lg:w-64 lg:block pointer-events-none"></div>
         </h1>
         <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-          With <span className="text-green-700 font-bold"> Clarity, </span>
+          With <span className="text-primary font-bold"> Clarity, </span>
           understand where you are today to know where you can be tomorrow.
         </p>
-        <Link
+
+        <RegisterLink
           className={buttonVariants({
+            variant: "default",
             size: "lg",
-            className: "mt-5 ",
+            className: "mt-8 text-lg",
           })}
-          href="/dashboard"
-          target="_blank"
         >
           Get started <ArrowRight className="ml-2 h-5 w-5" />
-        </Link>
+        </RegisterLink>
       </MaxWidthWrapper>
 
       {/* Value Proposition Section */}
@@ -46,9 +47,9 @@ export default function HeroPage() {
                     src="/dashboard-preview.jpg"
                     alt="product preview"
                     width={1920}
-                    height={1280}
+                    height={1200}
                     quality={100}
-                    className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
+                    className="rounded-md bg-white p-2 sm:p-8 md:p-2 shadow-2xl ring-1 ring-gray-900/10"
                   />
                 </div>
               </div>
@@ -77,37 +78,31 @@ export default function HeroPage() {
         <ol className="my-8 space-y-4 pt-8 md:flex md:space-x-12 md:space-y-0">
           <li className="md:flex-1">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
-              <span className="text-sm font-medium text-green-800">Step 1</span>
+              <span className="text-sm font-medium text-primary">Step 1</span>
               <span className="text-xl font-semibold">
-                Sign up for an account
+                Sign up for{" "}
+                <span className="text-primary font-semibold">Free!</span>
               </span>
               <span className="mt-2 text-zinc-700">
-                Either starting out with a free plan or choose our{" "}
-                <Link
-                  href="/pricing"
-                  className="text-blue-700 underline underline-offset-2"
-                >
-                  pro plan
-                </Link>
-                .
+                Use your favorite quick sign-up method to get an account
               </span>
             </div>
           </li>
           <li className="md:flex-1">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
-              <span className="text-sm font-medium text-green-800">Step 2</span>
-              <span className="text-xl font-semibold">Upload a PDF</span>
+              <span className="text-sm font-medium text-primary">Step 2</span>
+              <span className="text-xl font-semibold">Start here!</span>
               <span className="mt-2 text-zinc-700">
-                We will process your pdf for easy viewing and sharing
+                Answer 5 questions on where you're starting out
               </span>
             </div>
           </li>
           <li className="md:flex-1">
             <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
-              <span className="text-sm font-medium text-green-800">Step 3</span>
-              <span className="text-xl font-semibold">Scribble and Share</span>
+              <span className="text-sm font-medium text-primary">Step 3</span>
+              <span className="text-xl font-semibold">Let us work!</span>
               <span className="mt-2 text-zinc-700">
-                We make sure you team see your contribution in real time.
+                We'll do the investment calculation and watch your future grow!
               </span>
             </div>
           </li>
@@ -123,14 +118,35 @@ export default function HeroPage() {
               <Image
                 src="/file-upload-preview.jpg"
                 alt="uploading preview"
-                width={1419}
-                height={732}
+                width={1920}
+                height={1200}
                 quality={100}
                 className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
               />
             </div>
           </div>
         </div>
+
+        {/*  Final Image */}
+
+        <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center relative">
+          <h1 className=" relative max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl ">
+            Stock analysis <br />
+            <span className="text-primary"> Toolkit </span>
+            <div className="absolute  -top-32 -right-16 hidden lg:w-64 lg:block pointer-events-none"></div>
+          </h1>
+          <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
+            <span className="text-primary text-xs"> Coming Soon... </span>
+          </p>
+          <p>
+            Money is the tool |
+            <span className="text-primary font-bold text-lg pt-10">
+              {" "}
+              freedom{" "}
+            </span>
+            is the goal
+          </p>
+        </MaxWidthWrapper>
       </div>
     </>
   );

@@ -29,7 +29,7 @@ export default async function Navbar() {
 
           {/* Mobile Navbar  & additional features*/}
           <div className="hidden items-center space-x-4 md:flex">
-            <Link
+            {/* <Link
               href="/pricing"
               className={buttonVariants({
                 variant: "ghost",
@@ -37,7 +37,7 @@ export default async function Navbar() {
               })}
             >
               Pricing
-            </Link>
+            </Link> */}
             <Link
               href={
                 user

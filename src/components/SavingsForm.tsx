@@ -15,15 +15,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createSavingsListing } from "@/app/actions";
 
 import { SavingsData } from "@/types";
-import { useFormStatus } from "react-dom";
-import { Loader2 } from "lucide-react";
+
 import { SubmitButton } from "./SubmitButtons";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Card } from "./ui/card";
 
 const FormSchema = z.object({
@@ -31,7 +29,7 @@ const FormSchema = z.object({
     .number()
     .min(1, "Value must be at least 1")
     .max(1000000, "Value must be at most 1,000,000"),
-  rateOfReturn: z.number().min(0.01).max(1),
+  rateOfReturn: z.number().multipleOf(0.01).min(0.01).max(1),
   numberOfCompoundingYears: z.number().min(1).max(100),
   numberOfSavingYears: z.number().min(1).max(100),
   contribution: z.number().min(0).max(100000),
@@ -43,9 +41,11 @@ const FormSchema = z.object({
 export function SavingsForm({
   dbData,
   userId,
+  setDefaultSavingsData,
 }: {
   dbData: SavingsData;
   userId: any;
+  setDefaultSavingsData: Dispatch<SetStateAction<SavingsData>>;
 }) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -56,14 +56,23 @@ export function SavingsForm({
       numberOfSavingYears: dbData?.numberOfSavingYears || 30,
       contribution: dbData?.contribution || 1000,
       annualExpense: dbData?.annualExpense || 350000,
-      userId: userId,
+      userId: userId || "guestUser",
       id: dbData?.id || "guestData",
     },
   });
 
   const [pending, setPending] = useState(false);
 
+  console.log(userId);
+
   const onSubmit = async (values: z.infer<typeof FormSchema>) => {
+    //first we want to check if there is no user.
+    if (userId === "guestUser") {
+      setDefaultSavingsData(values as SavingsData);
+
+      return; // Stop execution here if userId is undefined
+    }
+
     setPending(true);
     try {
       await createSavingsListing(values);
@@ -73,9 +82,6 @@ export function SavingsForm({
       setPending(false);
     }
   };
-
-  // const { userId, ...newValues } = values;
-  // setStateSavingsData(newValues as SavingsData);
 
   function handleInputChange(field: any) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
