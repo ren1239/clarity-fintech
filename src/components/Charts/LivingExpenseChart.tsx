@@ -116,11 +116,13 @@ export function LivingExpenseChart({
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          Living in Thailand costs $24,000 <Tent className="h-4 w-4" />
+          Annual cost of life in Thailand is $24,000
+          <Tent className="h-4 w-4" />
         </div>
-        <div className="leading-none text-muted-foreground">
-          Our expense target is 4% of our Net Worth at the time of retirement
-        </div>
+        <CardDescription className="text-center text-xs max-w-72">
+          In your year of retirement, using the 4% expense rule, this is your
+          annual budget
+        </CardDescription>
       </CardFooter>
     </Card>
   );

@@ -1,5 +1,5 @@
 import prisma from "@/app/lib/db";
-import CompoundGrowthChart from "@/components/CompoundGrowthChart";
+import CompoundGrowthChart from "@/components/LifeCalculatorCard";
 import DecorativeBackground from "@/components/decorative/DecorativeBackground";
 import { SavingsForm } from "@/components/SavingsForm";
 import { Card } from "@/components/ui/card";

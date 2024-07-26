@@ -1,5 +1,5 @@
 import prisma from "@/app/lib/db";
-import CompoundGrowthChart from "@/components/CompoundGrowthChart";
+import LifeCalculatorCard from "@/components/LifeCalculator/LifeCalculatorCard";
 import DecorativeBackground from "@/components/decorative/DecorativeBackground";
 import { SavingsForm } from "@/components/SavingsForm";
 import { Card } from "@/components/ui/card";
@@ -62,21 +62,19 @@ export default async function CompoundCalculatorPage({
     <>
       <div className=" flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
         <DecorativeBackground />
-        <div className=" mx-auto w-full grow lg:flex px-6 xl:px-8 gap-4 space-y-10 lg:space-y-0">
+        <div className=" mx-auto w-full grow lg:flex px-6 xl:px-8 gap-x-4 space-y-4 lg:space-y-0">
           {/* Left Side Chart */}
           <div className="flex-1 ">
-            <CompoundGrowthChart dbData={dbData!} />
+            <LifeCalculatorCard dbData={dbData!} />
           </div>
           {/* Right Form  */}
 
           <div className="shrink-0 flex-[0.3] lg:w-[200px] ">
-            <Card className="p-4 h-full">
-              <SavingsForm
-                dbData={dbData!}
-                userId={params.id}
-                // setStateSavingsData={setStateSavingsData}
-              />
-            </Card>
+            <SavingsForm
+              dbData={dbData!}
+              userId={params.id}
+              // setStateSavingsData={setStateSavingsData}
+            />
           </div>
         </div>
       </div>

@@ -24,6 +24,7 @@ import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
 import { SubmitButton } from "./SubmitButtons";
 import { useState } from "react";
+import { Card } from "./ui/card";
 
 const FormSchema = z.object({
   principal: z
@@ -78,139 +79,144 @@ export function SavingsForm({
 
   function handleInputChange(field: any) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value ? parseFloat(event.target.value) : null;
+      const value =
+        event.target.value !== "" ? parseFloat(event.target.value) : null;
       field.onChange(value);
     };
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full flex flex-col justify-between h-full"
-      >
-        <FormField
-          control={form.control}
-          name="principal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Principal</FormLabel>
-              <FormDescription className=" text-xs">
-                What is your starting point?
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={handleInputChange(field)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="rateOfReturn"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Rate of Return</FormLabel>
-              <FormDescription className=" text-xs">
-                The S&P has returned 10% over the last 30 years
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={handleInputChange(field)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="numberOfCompoundingYears"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Total years</FormLabel>
-              <FormDescription className=" text-xs">
-                The average male expects to live until 87 years old
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={handleInputChange(field)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="numberOfSavingYears"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Years to retirement</FormLabel>
-              <FormDescription className=" text-xs">
-                How many years will you save for?
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={handleInputChange(field)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="contribution"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Annually savings</FormLabel>
-              <FormDescription className=" text-xs">
-                How much money can you save each year
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={handleInputChange(field)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="annualExpense"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Annually expense</FormLabel>
-              <FormDescription className=" text-xs">
-                How much money do you expect to spend?
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={handleInputChange(field)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <SubmitButton pending={pending} />
-      </form>
-    </Form>
+    <Card className="p-4 h-full">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full flex flex-col justify-between h-full"
+        >
+          <FormField
+            control={form.control}
+            name="principal"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Principal</FormLabel>
+                <FormDescription className=" text-xs">
+                  What is your starting point?
+                </FormDescription>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={handleInputChange(field)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="rateOfReturn"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rate of Return</FormLabel>
+                <FormDescription className=" text-xs">
+                  The S&P has returned 10% over the last 30 years
+                </FormDescription>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={handleInputChange(field)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="numberOfCompoundingYears"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total years</FormLabel>
+                <FormDescription className=" text-xs">
+                  The average male expects to live until 87 years old
+                </FormDescription>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={handleInputChange(field)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="numberOfSavingYears"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Years to retirement</FormLabel>
+                <FormDescription className=" text-xs">
+                  How many years will you save for?
+                </FormDescription>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={handleInputChange(field)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="contribution"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Annually savings</FormLabel>
+                <FormDescription className=" text-xs">
+                  How much money can you save each year
+                </FormDescription>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={handleInputChange(field)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="annualExpense"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Annually expense</FormLabel>
+                <FormDescription className=" text-xs">
+                  How much money do you expect to spend?
+                </FormDescription>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    onChange={handleInputChange(field)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="pt-4">
+            <SubmitButton pending={pending} />
+          </div>
+        </form>
+      </Form>
+    </Card>
   );
 }

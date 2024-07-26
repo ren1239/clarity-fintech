@@ -28,13 +28,13 @@ export async function createSavingsListing(formData: FormData) {
   } = formData;
 
   if (
-    !userId ||
-    !principal ||
-    !rateOfReturn ||
-    !numberOfCompoundingYears ||
-    !numberOfSavingYears ||
-    !contribution ||
-    !annualExpense
+    userId === undefined ||
+    principal === undefined ||
+    rateOfReturn === undefined ||
+    numberOfCompoundingYears === undefined ||
+    numberOfSavingYears === undefined ||
+    contribution === undefined ||
+    annualExpense === undefined
   ) {
     throw new Error("All fields are required");
   }
