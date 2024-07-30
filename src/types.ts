@@ -64,3 +64,16 @@ export interface dcfCalculationType {
   fcf: number;
   simpleCalculation: Boolean;
 }
+
+export interface dcfResultsType {
+  dcfValue: number;
+  totalFcf: number;
+  totalPvFcf: number;
+  fcfArray: {
+    year: number;
+    fcf: number;
+    pvFcf: number;
+  }[];
+  terminalYearFcf: number;
+  terminalYearPvFcf: number;
+}

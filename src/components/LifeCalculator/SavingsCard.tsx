@@ -1,9 +1,5 @@
+import { moneyFormatter } from "../Calculations/Formatter";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import numeral from "numeral";
-
-const moneyFormatter = (value: number) => {
-  return numeral(value).format("$0,0");
-};
 
 export const SavingsInvestingCard = ({
   title,

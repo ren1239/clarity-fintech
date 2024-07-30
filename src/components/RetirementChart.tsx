@@ -26,6 +26,7 @@ import {
   RetirementArrayType,
 } from "@/types";
 import { useEffect, useState } from "react";
+import { moneyFormatter } from "./Calculations/Formatter";
 
 //setup the chart config
 const chartConfig = {
@@ -34,10 +35,6 @@ const chartConfig = {
     color: "hsl(var(--chart-4))",
   },
 } satisfies ChartConfig;
-
-const moneyFormatter = (value: number) => {
-  return numeral(value).format("$0,0");
-};
 
 export default function RetirementChart({
   stateRetirementData,
