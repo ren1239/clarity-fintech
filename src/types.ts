@@ -51,3 +51,29 @@ export interface RetirementFormType {
   numberOfCompoundingYears: number;
   annualExpenses: number;
 }
+
+export interface dcfCalculationType {
+  stockPrice: number;
+  sharesOutstanding: number;
+  stGrowthRate: number;
+  ltGrowthRate: number;
+  discountRate: number;
+  terminalValue: number;
+  stockBasedComp: number;
+  netCashDebt: number;
+  fcf: number;
+  simpleCalculation: Boolean;
+}
+
+export interface dcfResultsType {
+  dcfValue: number;
+  totalFcf: number;
+  totalPvFcf: number;
+  fcfArray: {
+    year: number;
+    fcf: number;
+    pvFcf: number;
+  }[];
+  terminalYearFcf: number;
+  terminalYearPvFcf: number;
+}

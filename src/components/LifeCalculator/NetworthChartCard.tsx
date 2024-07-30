@@ -1,5 +1,4 @@
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import numeral from "numeral";
 
 import { CombinedResult } from "@/types";
 
@@ -18,6 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { moneyFormatter } from "../Calculations/Formatter";
 
 const chartConfig = {
   Networth: {
@@ -32,10 +32,6 @@ const chartConfig = {
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
-
-const moneyFormatter = (value: number) => {
-  return numeral(value).format("$0,0");
-};
 
 export const NetWorthChartCard = ({
   compound,
