@@ -111,6 +111,7 @@ const ChartTooltipContent = React.forwardRef<
       indicator?: "line" | "dot" | "dashed";
       nameKey?: string;
       labelKey?: string;
+      percent?: boolean;
     }
 >(
   (
@@ -120,6 +121,7 @@ const ChartTooltipContent = React.forwardRef<
       className,
       indicator = "dot",
       hideLabel = false,
+      percent = false,
       hideIndicator = false,
       label,
       labelFormatter,
@@ -240,7 +242,11 @@ const ChartTooltipContent = React.forwardRef<
                       </div>
                       {item.value && (
                         <span className="font-mono font-medium tabular-nums text-foreground">
-                          {item.value.toLocaleString()}
+                          {percent
+                            ? (Number(item.value) * 100)
+                                .toFixed(1)
+                                .toLocaleString() + "%"
+                            : item.value.toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -254,7 +260,6 @@ const ChartTooltipContent = React.forwardRef<
     );
   }
 );
-ChartTooltipContent.displayName = "ChartTooltip";
 
 const ChartLegend = RechartsPrimitive.Legend;
 

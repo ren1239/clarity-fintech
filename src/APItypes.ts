@@ -77,3 +77,11 @@ export interface APIFinancialGrowthType {
   rdexpenseGrowth: number;
   sgaexpensesGrowth: number;
 }
+
+export interface ChartDataType {
+  revenueGrowth: number;
+  freeCashFlowGrowth: number;
+  netIncomeGrowth: number;
+  epsgrowth: number;
+  bookValueperShareGrowth: number;
+}
