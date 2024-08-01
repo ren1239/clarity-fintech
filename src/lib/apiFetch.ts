@@ -52,6 +52,6 @@ export async function fetchCompanyProfile(
 
 export async function fetchFinancialGrowth(
   id: string
-): Promise<APIFinancialGrowthType | null> {
-  return fetchData<APIFinancialGrowthType>(id, "financialgrowth");
+): Promise<APIFinancialGrowthType[] | null> {
+  return fetchData<APIFinancialGrowthType[]>(id, "financialgrowth");
 }
