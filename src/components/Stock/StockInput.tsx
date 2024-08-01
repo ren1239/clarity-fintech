@@ -53,7 +53,9 @@ export default function StockInput() {
 
         //Return error if there is no network response
         if (!response.ok) {
-          throw new Error("Network response was not okay");
+          // Try to extract the JSON error message from the response
+          const errorData = await response.json();
+          console.error("Error:", errorData.message || errorData.error);
         }
 
         //Filter logic for data
@@ -67,7 +69,7 @@ export default function StockInput() {
 
         //Catch possible errors
       } catch (error: any) {
-        console.error("Error fetching data", error);
+        console.error("Error fetching data", error.message);
       }
     }, 300), //set the delay of the function
     []
