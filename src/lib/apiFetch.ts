@@ -20,6 +20,9 @@ export async function fetchData<T>(
     const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const endpointURL = `${baseURL}/api/fetchstockdata/${endpoint}?symbol=${id}`;
 
+    console.log("baseURL", baseURL);
+    console.log("endpointURL", endpointURL);
+
     const res = await fetch(endpointURL);
     if (!res.ok) {
       console.error(
