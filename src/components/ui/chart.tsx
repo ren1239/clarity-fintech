@@ -360,6 +360,8 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config];
 }
 
+ChartTooltipContent.displayName = "ChartTooltipContent";
+
 export {
   ChartContainer,
   ChartTooltip,
