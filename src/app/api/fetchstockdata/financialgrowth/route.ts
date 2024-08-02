@@ -32,7 +32,6 @@ export async function GET(req: NextRequest) {
     }
     const financialGrowth: APIFinancialGrowthType[] = await response.json();
 
-    console.log("success financial-growth");
     return NextResponse.json(financialGrowth, { status: 200 });
   } catch (err) {
     return NextResponse.json(

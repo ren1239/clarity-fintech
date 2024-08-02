@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -19,21 +19,49 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { APIFinancialGrowthType } from "@/APItypes";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { GrowthChartLegend } from "./GrowthChartLegend";
+import { calculateAverages } from "./CalculateAverages";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { GrowthTableDialogue } from "./GrowthTableDialogue";
 
 const chartConfig = {
   revenueGrowth: {
-    label: "revenueGrowth",
+    label: "Revenue",
     color: "hsl(var(--chart-1))",
   },
   freeCashFlowGrowth: {
-    label: "freeCashFlowGrowth",
+    label: "Free Cash Flow",
     color: "hsl(var(--chart-2))",
+  },
+  netIncomeGrowth: {
+    label: "Net Income",
+    color: "hsl(var(--chart-3))",
+  },
+  epsgrowth: {
+    label: "Earnings",
+    color: "hsl(var(--chart-4))",
+  },
+  bookValueperShareGrowth: {
+    label: "Book Value",
+    color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig;
 
-// Helper function to convert to percent
-const toPercent = (decimal: number) => `${(decimal * 100).toFixed(0)}%`;
+//Helper functions to convert ChartConfig into Arrays
+
+const chartConfigArray = Object.entries(chartConfig).map(([key, value]) => ({
+  key,
+  ...value,
+}));
+
+const chartKeyArray = chartConfigArray.map((obj) => obj.key);
 
 export function GrowthChartCard({
   financialGrowth,
@@ -47,25 +75,88 @@ export function GrowthChartCard({
     return [];
   }, [financialGrowth]);
 
+  // Initial state setup for visibility of chart lines
+
+  const [visibleLines, setVisibleLines] = useState(() => {
+    // Initialize an empty object to store visibility state
+    const initialVisibilityState = {} as { [key: string]: boolean };
+
+    // Convert chartConfig to an array and populate initialVisibilityState
+    Object.entries(chartConfig).forEach(([key, value]) => {
+      initialVisibilityState[key] = true;
+    });
+
+    // Return the initial state object
+    return initialVisibilityState;
+  });
+
+  // Prev state is the object holds all the line visibility
+  const toggleLineVisibility = (key: string) => {
+    setVisibleLines((prevState) => ({
+      ...prevState,
+      [key]: !prevState[key],
+    }));
+  };
+
+  const [timeRange, setTimeRange] = useState("10 years");
+
+  const filteredData = useMemo(() => {
+    if (timeRange === "10 years") {
+      return chartData.slice(chartData.length - 10, chartData.length);
+    } else if (timeRange === "5 years") {
+      return chartData.slice(chartData.length - 5, chartData.length);
+    } else if (timeRange === "3 years") {
+      return chartData.slice(chartData.length - 3, chartData.length);
+    }
+    return [];
+  }, [timeRange, chartData]);
+
+  const averageResults = calculateAverages(filteredData, chartKeyArray);
+
   return (
-    <Card className="w-2/3">
-      <CardHeader>
-        <CardTitle>
-          Growth Chart - {chartData.length > 0 ? chartData[0].symbol : "N/A"}
-        </CardTitle>
-        <CardDescription>
-          {chartData.length
-            ? `${chartData[0].calendarYear} - ${
-                chartData[chartData.length - 1].calendarYear
-              }`
-            : ""}
-        </CardDescription>
+    <Card className="w-3/4">
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+        <div className="grid flex-1 gap-1 text-center sm:text-left">
+          <CardTitle>
+            Growth Chart -
+            {filteredData.length > 0 ? filteredData[0].symbol : "N/A"}
+          </CardTitle>
+          <CardDescription>
+            {filteredData.length
+              ? `${filteredData[0].calendarYear} - ${
+                  filteredData[filteredData.length - 1].calendarYear
+                }`
+              : ""}
+          </CardDescription>
+        </div>
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger
+            className="w-[160px] rounded-lg sm:ml-auto"
+            aria-label="Select a value"
+          >
+            <SelectValue placeholder="10 years" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl">
+            <SelectItem className="rounded-lg" value={"10 years"}>
+              Last 10 years
+            </SelectItem>
+            <SelectItem className="rounded-lg" value={"5 years"}>
+              Last 5 years
+            </SelectItem>
+            <SelectItem className="rounded-lg" value={"3 years"}>
+              Last 3 years
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
+      <CardContent className="flex flex-col lg:flex-row gap-x-8 mt-4 gap-y-8">
+        <ChartContainer
+          className=" w-full min-w-[250px] min-h-[500px]"
+          config={chartConfig}
+        >
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={filteredData}
             margin={{
               top: 20,
               left: 12,
@@ -83,66 +174,100 @@ export function GrowthChartCard({
             />
             <ChartTooltip
               cursor={false}
-              content={
-                <ChartTooltipContent
-                  indicator="line"
-                  formatter={(value: any, name) =>
-                    `${name}  ${toPercent(value)}`
-                  }
-                />
-              }
+              content={<ChartTooltipContent indicator="line" percent={true} />}
             />
-            <Line
-              dataKey="revenueGrowth"
-              type="linear"
-              stroke="var(--color-revenueGrowth)"
-              strokeWidth={2}
-              dot={{
-                fill: "var(--color-revenueGrowth)",
-              }}
-              activeDot={{
-                r: 6,
-              }}
-            >
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
-                formatter={(value: number) => toPercent(value)}
+
+            {/* Render lines conditionally based on visibility */}
+            {visibleLines.revenueGrowth && (
+              <Line
+                dataKey="revenueGrowth"
+                type="linear"
+                stroke="var(--color-revenueGrowth)"
+                strokeWidth={2}
+                dot={{
+                  fill: "var(--color-revenueGrowth)",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
               />
-            </Line>
-            <Line
-              dataKey="freeCashFlowGrowth"
-              type="linear"
-              stroke="var(--color-freeCashFlowGrowth)"
-              strokeWidth={2}
-              dot={{
-                fill: "var(--color-freeCashFlowGrowth)",
-              }}
-              activeDot={{
-                r: 6,
-              }}
-            >
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
-                formatter={(value: number) => toPercent(value)}
+            )}
+
+            {visibleLines.freeCashFlowGrowth && (
+              <Line
+                dataKey="freeCashFlowGrowth"
+                type="linear"
+                stroke="var(--color-freeCashFlowGrowth)"
+                strokeWidth={2}
+                dot={{
+                  fill: "var(--color-freeCashFlowGrowth)",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
               />
-            </Line>
-            <ChartLegend content={<ChartLegendContent />} />
+            )}
+
+            {visibleLines.netIncomeGrowth && (
+              <Line
+                dataKey="netIncomeGrowth"
+                type="linear"
+                stroke="var(--color-netIncomeGrowth)"
+                strokeWidth={2}
+                dot={{
+                  fill: "var(--color-netIncomeGrowth)",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
+              />
+            )}
+
+            {visibleLines.epsgrowth && (
+              <Line
+                dataKey="epsgrowth"
+                type="linear"
+                stroke="var(--color-epsgrowth)"
+                strokeWidth={2}
+                dot={{
+                  fill: "var(--color-epsgrowth)",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
+              />
+            )}
+
+            {visibleLines.bookValueperShareGrowth && (
+              <Line
+                dataKey="bookValueperShareGrowth"
+                type="linear"
+                stroke="var(--color-bookValueperShareGrowth)"
+                strokeWidth={2}
+                dot={{
+                  fill: "var(--color-bookValueperShareGrowth)",
+                }}
+                activeDot={{
+                  r: 6,
+                }}
+              />
+            )}
+
+            <ChartLegend
+              content={<ChartLegendContent />}
+              className="hidden md:flex"
+            />
           </LineChart>
         </ChartContainer>
+        <GrowthChartLegend
+          chartConfigArray={chartConfigArray}
+          visibleLines={visibleLines}
+          toggleLineVisibility={toggleLineVisibility}
+          averageResults={averageResults}
+        />
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
+      <CardFooter className="flex justify-end">
+        <GrowthTableDialogue filteredData={filteredData} />
       </CardFooter>
     </Card>
   );

@@ -77,3 +77,32 @@ export interface APIFinancialGrowthType {
   rdexpenseGrowth: number;
   sgaexpensesGrowth: number;
 }
+
+export interface ChartDataType {
+  revenueGrowth: number;
+  freeCashFlowGrowth: number;
+  netIncomeGrowth: number;
+  epsgrowth: number;
+  bookValueperShareGrowth: number;
+}
+
+export interface APIMarketPriceType {
+  symbol: string;
+  historical: MarketPriceType[];
+}
+
+export interface MarketPriceType {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  adjClose: number;
+  volume: number;
+  unadjustedVolume: number;
+  change: number;
+  changePercent: number;
+  vwap: number;
+  label: string;
+  changeOverTime: number;
+}

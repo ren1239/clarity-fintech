@@ -63,8 +63,6 @@ export function SavingsForm({
 
   const [pending, setPending] = useState(false);
 
-  console.log(userId);
-
   const onSubmit = async (values: z.infer<typeof FormSchema>) => {
     //first we want to check if there is no user.
     if (userId === "guestUser") {

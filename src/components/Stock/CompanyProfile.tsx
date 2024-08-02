@@ -1,5 +1,6 @@
 import { APICompanyProfileType } from "@/APItypes";
 import Image from "next/image";
+import { Card } from "../ui/card";
 
 export default function CompanyProfile({
   companyProfile,
@@ -15,8 +16,8 @@ export default function CompanyProfile({
     );
   }
   return (
-    <>
-      <div className="bg-red-500">
+    <Card className="w-3/4">
+      <div className="p-4">
         <h1>Stock Symbol: {companyProfile.symbol}</h1>
         <p>Company Name: {companyProfile.companyName}</p>
         <p>Stock Price: {companyProfile.price}</p>
@@ -30,6 +31,6 @@ export default function CompanyProfile({
           height={100}
         />
       </div>
-    </>
+    </Card>
   );
 }

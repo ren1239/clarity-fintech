@@ -1,4 +1,8 @@
-import { APICompanyProfileType, APIFinancialGrowthType } from "@/APItypes";
+import {
+  APICompanyProfileType,
+  APIFinancialGrowthType,
+  APIMarketPriceType,
+} from "@/APItypes";
 
 export async function fetchData<T>(
   id: string,
@@ -19,9 +23,6 @@ export async function fetchData<T>(
     // Server Components require the absolute URL - unlike client components
     const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const endpointURL = `${baseURL}/api/fetchstockdata/${endpoint}?symbol=${id}`;
-
-    console.log("baseURL", baseURL);
-    console.log("endpointURL", endpointURL);
 
     const res = await fetch(endpointURL);
     if (!res.ok) {
@@ -57,4 +58,10 @@ export async function fetchFinancialGrowth(
   id: string
 ): Promise<APIFinancialGrowthType[] | null> {
   return fetchData<APIFinancialGrowthType[]>(id, "financialgrowth");
+}
+
+export async function fetchMarketPrice(
+  id: string
+): Promise<APIMarketPriceType | null> {
+  return fetchData<APIMarketPriceType>(id, "marketprice");
 }

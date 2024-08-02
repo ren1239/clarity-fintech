@@ -26,6 +26,8 @@ interface StockNameType {
 export default function StockInput() {
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<StockNameType[]>([]);
+  const [error, setError] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   //Create a useCallback Hook to memoize the function, ensuring that a re-render does not happen
@@ -53,23 +55,32 @@ export default function StockInput() {
 
         //Return error if there is no network response
         if (!response.ok) {
+          setError(true);
           // Try to extract the JSON error message from the response
           const errorData = await response.json();
           console.error("Error:", errorData.message || errorData.error);
+          return; // Exit early if there's an error
         }
 
+        // Reset the error state if the response is successful
+        setError(false);
         //Filter logic for data
+
         const data: StockNameType[] = await response.json();
         const filteredSuggestions = data.filter(
           (item) =>
             item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.symbol.toLowerCase().includes(searchTerm.toLowerCase())
         );
+        if (filteredSuggestions.length === 0) {
+          setError(true);
+        }
         setSuggestions(filteredSuggestions);
 
         //Catch possible errors
       } catch (error: any) {
         console.error("Error fetching data", error.message);
+        setError(true);
       }
     }, 300), //set the delay of the function
     []
@@ -90,8 +101,12 @@ export default function StockInput() {
     setQuery(event.target.value);
   };
 
+  const closeDialog = () => {
+    setDialogOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Search Stocks</Button>
       </DialogTrigger>
@@ -110,10 +125,17 @@ export default function StockInput() {
             onChange={inputChangeHandler}
             placeholder="aapl"
           />
+          {error && (
+            <div className="text-red-500 text-xs">
+              Error finding stock. Please try again.
+            </div>
+          )}
+
           {suggestions.length > 0 && (
             <ul className=" text-left mt-2 ">
               {suggestions.slice(0, 5).map((suggestion, index) => (
                 <Link
+                  onClick={closeDialog}
                   href={`/stock/${suggestion.symbol}`}
                   key={index}
                   className="hover:bg-slate-400 bg-black"
