@@ -9,6 +9,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { buttonVariants } from "./ui/button";
 import DropDownBurger from "./DropDownBurger";
+import StockInput from "./Stock/StockInput";
 
 export default async function Navbar() {
   const { getUser } = getKindeServerSession();
@@ -71,9 +72,8 @@ export default async function Navbar() {
             </Link>
           </div>
 
-          {/* Signin / SignOut */}
-
           <div className="items-center space-x-4 ">
+            {/* Signin / SignOut */}
             {user ? (
               <>
                 <LogoutLink
@@ -96,6 +96,15 @@ export default async function Navbar() {
                   Sign in
                 </LoginLink>
               </>
+            )}
+
+            {/* Stock Search */}
+            {user ? (
+              <>
+                <StockInput />
+              </>
+            ) : (
+              ""
             )}
 
             {/* Try for free / Dashboard */}

@@ -28,7 +28,5 @@ export const calculateAverages = (
     averages[key as keyof ChartDataType] = total / chartData.length;
   });
 
-  console.log("averages", averages);
-
   return averages;
 };

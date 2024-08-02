@@ -22,6 +22,14 @@ import { APIFinancialGrowthType } from "@/APItypes";
 import { useMemo, useState } from "react";
 import { GrowthChartLegend } from "./GrowthChartLegend";
 import { calculateAverages } from "./CalculateAverages";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { GrowthTableDialogue } from "./GrowthTableDialogue";
 
 const chartConfig = {
   revenueGrowth: {
@@ -52,8 +60,6 @@ const chartConfigArray = Object.entries(chartConfig).map(([key, value]) => ({
   key,
   ...value,
 }));
-
-console.log("arrya", chartConfigArray);
 
 const chartKeyArray = chartConfigArray.map((obj) => obj.key);
 
@@ -92,27 +98,65 @@ export function GrowthChartCard({
     }));
   };
 
-  const averageResults = calculateAverages(chartData, chartKeyArray);
+  const [timeRange, setTimeRange] = useState("10 years");
+
+  const filteredData = useMemo(() => {
+    if (timeRange === "10 years") {
+      return chartData.slice(chartData.length - 10, chartData.length);
+    } else if (timeRange === "5 years") {
+      return chartData.slice(chartData.length - 5, chartData.length);
+    } else if (timeRange === "3 years") {
+      return chartData.slice(chartData.length - 3, chartData.length);
+    }
+    return [];
+  }, [timeRange, chartData]);
+
+  const averageResults = calculateAverages(filteredData, chartKeyArray);
 
   return (
-    <Card className="w-2/3">
-      <CardHeader className="border-b mb-4">
-        <CardTitle>
-          Growth Chart - {chartData.length > 0 ? chartData[0].symbol : "N/A"}
-        </CardTitle>
-        <CardDescription>
-          {chartData.length
-            ? `${chartData[0].calendarYear} - ${
-                chartData[chartData.length - 1].calendarYear
-              }`
-            : ""}
-        </CardDescription>
+    <Card className="w-3/4">
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+        <div className="grid flex-1 gap-1 text-center sm:text-left">
+          <CardTitle>
+            Growth Chart -
+            {filteredData.length > 0 ? filteredData[0].symbol : "N/A"}
+          </CardTitle>
+          <CardDescription>
+            {filteredData.length
+              ? `${filteredData[0].calendarYear} - ${
+                  filteredData[filteredData.length - 1].calendarYear
+                }`
+              : ""}
+          </CardDescription>
+        </div>
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger
+            className="w-[160px] rounded-lg sm:ml-auto"
+            aria-label="Select a value"
+          >
+            <SelectValue placeholder="10 years" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl">
+            <SelectItem className="rounded-lg" value={"10 years"}>
+              Last 10 years
+            </SelectItem>
+            <SelectItem className="rounded-lg" value={"5 years"}>
+              Last 5 years
+            </SelectItem>
+            <SelectItem className="rounded-lg" value={"3 years"}>
+              Last 3 years
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </CardHeader>
-      <CardContent className="flex gap-x-4">
-        <ChartContainer className=" w-full min-w-[350px]" config={chartConfig}>
+      <CardContent className="flex flex-col lg:flex-row gap-x-8 mt-4 gap-y-8">
+        <ChartContainer
+          className=" w-full min-w-[250px] min-h-[500px]"
+          config={chartConfig}
+        >
           <LineChart
             accessibilityLayer
-            data={chartData}
+            data={filteredData}
             margin={{
               top: 20,
               left: 12,
@@ -121,13 +165,6 @@ export function GrowthChartCard({
           >
             <CartesianGrid vertical={false} />
 
-            <YAxis
-              // dataKey="calendarYear"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value * 100 + "%"}
-            />
             <XAxis
               dataKey="calendarYear"
               tickLine={false}
@@ -216,7 +253,10 @@ export function GrowthChartCard({
               />
             )}
 
-            <ChartLegend content={<ChartLegendContent />} />
+            <ChartLegend
+              content={<ChartLegendContent />}
+              className="hidden md:flex"
+            />
           </LineChart>
         </ChartContainer>
         <GrowthChartLegend
@@ -226,13 +266,8 @@ export function GrowthChartCard({
           averageResults={averageResults}
         />
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm border-t ">
-        <div className="flex gap-2 font-medium leading-none mt-4">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
+      <CardFooter className="flex justify-end">
+        <GrowthTableDialogue filteredData={filteredData} />
       </CardFooter>
     </Card>
   );

@@ -27,14 +27,12 @@ export function GrowthChartLegend({
   toggleLineVisibility: (key: string) => void;
   averageResults: ChartDataType;
 }) {
-  console.log("visible lines", visibleLines);
-
   const visibleAverage = visibleAverageCalculation({
     visibleLines,
     averageResults,
   });
   return (
-    <Card className="flex flex-col w-[300px] h-[500px] justify-between">
+    <Card className="flex flex-col min-w-[250px] lg:h-[500px] justify-between">
       <CardHeader className="mb-4">
         <CardTitle>Growth Chart</CardTitle>
         <CardDescription>Growth Indicators</CardDescription>
@@ -45,12 +43,17 @@ export function GrowthChartLegend({
           <button
             key={index}
             onClick={() => toggleLineVisibility(data.key)}
-            className={`flex items-center justify-start gap-2 w-full p-2 ${
+            className={`flex items-center justify-between gap-2 w-full p-2 text-xs  ${
               visibleLines[data.key] ? "text-slate-900" : "text-slate-300"
             }`}
           >
-            <div style={{ background: data.color }} className="w-2 h-2"></div>
-            <h2>{data.label}</h2>
+            <div className="flex items-center gap-2">
+              <div
+                style={{ background: data.color }}
+                className="w-2 h-2 rounded-full"
+              />
+              <h2>{data.label}</h2>
+            </div>
             <p>
               {percentFormatter(
                 Number(averageResults[data.key as keyof ChartDataType])
@@ -59,7 +62,7 @@ export function GrowthChartLegend({
           </button>
         ))}
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm border-t">
+      <CardFooter className="flex-col items-start gap-2 text-sm border-t ">
         <div className="flex gap-2 font-semibold leading-none mt-4 text-xl">
           Average Growth Rate:
         </div>

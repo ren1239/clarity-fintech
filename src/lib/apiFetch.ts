@@ -1,4 +1,8 @@
-import { APICompanyProfileType, APIFinancialGrowthType } from "@/APItypes";
+import {
+  APICompanyProfileType,
+  APIFinancialGrowthType,
+  APIMarketPriceType,
+} from "@/APItypes";
 
 export async function fetchData<T>(
   id: string,
@@ -54,4 +58,10 @@ export async function fetchFinancialGrowth(
   id: string
 ): Promise<APIFinancialGrowthType[] | null> {
   return fetchData<APIFinancialGrowthType[]>(id, "financialgrowth");
+}
+
+export async function fetchMarketPrice(
+  id: string
+): Promise<APIMarketPriceType | null> {
+  return fetchData<APIMarketPriceType>(id, "marketprice");
 }

@@ -18,7 +18,6 @@ export default function RetirementCalculatorSection() {
     });
 
   const userId = "guest";
-  console.log(stateRetirementData);
 
   return (
     <div className=" flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
