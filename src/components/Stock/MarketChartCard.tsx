@@ -70,7 +70,7 @@ export default function MarketChartCard({
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Market Price - {marketPrice?.symbol}</CardTitle>
           <CardDescription className="">
-            ${filteredData[0].open}
+            ${filteredData[filteredData.length - 1].open}
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
