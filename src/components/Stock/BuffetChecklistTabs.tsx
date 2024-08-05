@@ -25,7 +25,7 @@ export function BuffetChecklistTabs() {
         className="min-w-[400px] flex-[0.5] shrink-0"
       >
         <CardTitle className="px-8 flex items-center justify-center">
-          Warren Buffet's Checklist
+          Warren Buffet&#39;s Checklist
         </CardTitle>
 
         <TabsList className="grid w-full grid-cols-2">
