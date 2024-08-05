@@ -49,7 +49,7 @@ export default function StockInput() {
       abortControllerRef.current = new AbortController();
 
       try {
-        const response = await fetch(`api/search?q=${searchTerm}`, {
+        const response = await fetch(`/api/search?q=${searchTerm}`, {
           signal: abortControllerRef.current.signal, //Signal used to abort prev request
         });
 
