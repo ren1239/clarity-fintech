@@ -1,4 +1,9 @@
-import { APICompanyProfileType } from "@/APItypes";
+import {
+  APIBalanceSheetType,
+  APICashflowStatementType,
+  APICompanyProfileType,
+  APIIncomeStatementType,
+} from "@/APItypes";
 import Image from "next/image";
 import {
   Card,
@@ -11,13 +16,26 @@ import { moneyFormatter } from "../Calculations/Formatter";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
 import { FMPPriceChartCard } from "./FMPPriceChartCard";
 import { DetailTabs } from "./DetailTabs";
+import { BuffetChecklistTabs } from "./BuffetChecklistTabs";
+import { Button } from "../ui/button";
 
 export default function CompanyProfile({
   companyProfile,
+  balanceSheet,
+  cashflowStatement,
+  incomeStatement,
 }: {
   companyProfile: APICompanyProfileType | null;
+  balanceSheet: APIBalanceSheetType[] | null;
+  cashflowStatement: APICashflowStatementType[] | null;
+  incomeStatement: APIIncomeStatementType[] | null;
 }) {
-  if (!companyProfile) {
+  if (
+    !companyProfile ||
+    !balanceSheet ||
+    !cashflowStatement ||
+    !incomeStatement
+  ) {
     return (
       <div>
         <h1>404 - Not Found</h1>
@@ -26,8 +44,8 @@ export default function CompanyProfile({
     );
   }
   return (
-    <div className=" flex-1 pt-4 justify-between flex flex-col min-h-[calc(100vh-4.5rem)] w-4/5">
-      <div className=" mx-auto w-full grow lg:flex px-6 xl:px-8 gap-4 space-y-10 lg:space-y-0 min-h-full ">
+    <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] w-3/4 ">
+      <div className=" mx-auto w-full grow lg:flex space-y-10 lg:space-y-0 min-h-full ">
         {/* Left Side */}
 
         <div className="flex-3 flex-col min-h-full gap-y-4 gap-x-4 ">
@@ -52,7 +70,9 @@ export default function CompanyProfile({
                     ({companyProfile.symbol})
                   </span>
                 </CardTitle>
-                <CardDescription>{companyProfile.exchange}</CardDescription>
+                <CardDescription>
+                  {companyProfile.exchange} || {companyProfile.industry}
+                </CardDescription>
               </div>
             </div>
 
@@ -76,51 +96,28 @@ export default function CompanyProfile({
             </div>
           </Card>
 
+          {/* Detail Tab */}
+
           <div className="flex gap-4 pt-4">
             <div className="flex-1">
-              <DetailTabs />
+              <DetailTabs
+                balanceSheet={balanceSheet}
+                incomeStatement={incomeStatement}
+                cashflowStatement={cashflowStatement}
+              />
             </div>
 
-            <div className="flex flex-col justify-between gap-y-4 ">
-              {/* DCF Price */}
-
-              <FMPPriceChartCard companyProfile={companyProfile} />
-              {/* Detailed Cards */}
-
-              <div className=" flex items-center space-x-4 ">
-                <DetailCard
-                  title={"Country"}
-                  content={companyProfile.country}
-                />
-                <DetailCard
-                  title={"Currency"}
-                  content={companyProfile.currency}
-                />
-                <DetailCard
-                  title={"Mkt. Cap"}
-                  content={moneyFormatter(companyProfile.mktCap)}
-                />
-              </div>
-
-              {/* Description Card */}
-
-              <div className=" flex items-center space-x-4 rounded-md border p-4">
-                <div className="flex flex-col gap-2">
-                  <p> Description:</p>
-                  <p className="line-clamp-5 text-xs text-muted-foreground">
-                    {companyProfile.description}
-                  </p>
-                </div>
-              </div>
+            <div className="flex flex-col flex-[0.7] justify-between ">
+              {/* Clarity Value Tab */}
+              <ClarityValueCard companyProfile={companyProfile} />
+              <Button>Details</Button>
             </div>
           </div>
         </div>
 
         {/* Right Side */}
 
-        <div className="flex-[0.5]">
-          <DetailTabs />
-        </div>
+        {/* <BuffetChecklistTabs /> */}
       </div>
     </div>
   );
@@ -142,3 +139,49 @@ export const DetailCard = ({
     </CardContent>
   </Card>
 );
+
+export const ClarityValueCard = ({
+  companyProfile,
+}: {
+  companyProfile: APICompanyProfileType | null;
+}) => {
+  if (!companyProfile) {
+    return (
+      <div>
+        <h1>404 - Not Found</h1>
+        <p>No data available </p>
+      </div>
+    );
+  }
+
+  {
+    return (
+      <div className="flex flex-col  gap-y-4 ">
+        {/* DCF Price */}
+
+        <FMPPriceChartCard companyProfile={companyProfile} />
+        {/* Detailed Cards */}
+
+        <div className=" flex items-center space-x-4 ">
+          <DetailCard title={"Country"} content={companyProfile.country} />
+          <DetailCard title={"Currency"} content={companyProfile.currency} />
+          <DetailCard
+            title={"Mkt. Cap"}
+            content={moneyFormatter(companyProfile.mktCap)}
+          />
+        </div>
+
+        {/* Description Card */}
+
+        <div className=" flex items-center space-x-4 rounded-md border p-4">
+          <div className="flex flex-col gap-2">
+            <p> Description:</p>
+            <p className="line-clamp-5 text-xs text-muted-foreground">
+              {companyProfile.description}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+};

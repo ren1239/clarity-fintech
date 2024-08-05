@@ -1,10 +1,10 @@
 import numeral from "numeral";
 
 export const moneyFormatter = (value: number) => {
-  if (value <= 1000) {
+  if (Math.abs(value) <= 1000) {
     return numeral(value).format("$0.0");
   }
-  return numeral(value).format("$0a.0").toUpperCase();
+  return numeral(value).format("$0.0a").toUpperCase();
 };
 
 export const percentFormatter = (value: number) => {
