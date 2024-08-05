@@ -99,7 +99,7 @@ export default function MarketChartCard({
 
       <CardContent>
         <ChartContainer
-          className=" w-full min-w-[250px] min-h-[500px]"
+          className=" w-full min-w-[250px] h-[300px]"
           config={chartConfig}
         >
           <AreaChart data={filteredData}>

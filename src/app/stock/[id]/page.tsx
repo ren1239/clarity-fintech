@@ -29,6 +29,7 @@ const IndividualStockPage = async ({ params }: { params: { id: string } }) => {
         incomeStatement={incomeStatement}
         cashflowStatement={cashflowStatement}
         companyProfile={companyProfile}
+        financialGrowth={financialGrowth}
       />
       <MarketChartCard marketPrice={marketPrice} />
       <GrowthChartCard financialGrowth={financialGrowth} />

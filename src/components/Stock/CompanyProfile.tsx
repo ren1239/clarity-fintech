@@ -2,6 +2,7 @@ import {
   APIBalanceSheetType,
   APICashflowStatementType,
   APICompanyProfileType,
+  APIFinancialGrowthType,
   APIIncomeStatementType,
 } from "@/APItypes";
 import Image from "next/image";
@@ -18,23 +19,27 @@ import { FMPPriceChartCard } from "./FMPPriceChartCard";
 import { DetailTabs } from "./DetailTabs";
 import { BuffetChecklistTabs } from "./BuffetChecklistTabs";
 import { Button } from "../ui/button";
+import { DetailTableDialogue } from "./DetailTableDialogue";
 
 export default function CompanyProfile({
   companyProfile,
   balanceSheet,
   cashflowStatement,
   incomeStatement,
+  financialGrowth,
 }: {
   companyProfile: APICompanyProfileType | null;
   balanceSheet: APIBalanceSheetType[] | null;
   cashflowStatement: APICashflowStatementType[] | null;
   incomeStatement: APIIncomeStatementType[] | null;
+  financialGrowth: APIFinancialGrowthType[] | null;
 }) {
   if (
     !companyProfile ||
     !balanceSheet ||
     !cashflowStatement ||
-    !incomeStatement
+    !incomeStatement ||
+    !financialGrowth
   ) {
     return (
       <div>
@@ -98,7 +103,7 @@ export default function CompanyProfile({
 
           {/* Detail Tab */}
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-4 pt-4 flex-col lg:flex-row">
             <div className="flex-1">
               <DetailTabs
                 balanceSheet={balanceSheet}
@@ -107,10 +112,17 @@ export default function CompanyProfile({
               />
             </div>
 
-            <div className="flex flex-col flex-[0.7] justify-between ">
+            <div className="flex flex-col flex-[0.7] justify-between gap-y-4">
               {/* Clarity Value Tab */}
               <ClarityValueCard companyProfile={companyProfile} />
-              <Button>Details</Button>
+              <DetailTableDialogue
+                balanceSheet={balanceSheet}
+                incomeStatement={incomeStatement}
+                cashflowStatement={cashflowStatement}
+                financialGrowth={financialGrowth}
+                companyProfile={companyProfile}
+              />
+              {/* <Button>Details</Button> */}
             </div>
           </div>
         </div>
