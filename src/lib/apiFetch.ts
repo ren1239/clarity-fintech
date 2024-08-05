@@ -1,6 +1,9 @@
 import {
+  APIBalanceSheetType,
+  APICashflowStatementType,
   APICompanyProfileType,
   APIFinancialGrowthType,
+  APIIncomeStatementType,
   APIMarketPriceType,
 } from "@/APItypes";
 
@@ -64,4 +67,22 @@ export async function fetchMarketPrice(
   id: string
 ): Promise<APIMarketPriceType | null> {
   return fetchData<APIMarketPriceType>(id, "marketprice");
+}
+
+export async function fetchCashflowStatement(
+  id: string
+): Promise<APICashflowStatementType[] | null> {
+  return fetchData<APICashflowStatementType[]>(id, "cashflowstatement");
+}
+
+export async function fetchIncomeStatement(
+  id: string
+): Promise<APIIncomeStatementType[] | null> {
+  return fetchData<APIIncomeStatementType[]>(id, "incomestatement");
+}
+
+export async function fetchBalanceSheet(
+  id: string
+): Promise<APIBalanceSheetType[] | null> {
+  return fetchData<APIBalanceSheetType[]>(id, "balancesheet");
 }
