@@ -1,40 +1,23 @@
 "use server";
+// stock/[id]/page.tsx
+import React from "react";
+import StockPageWrapper from "./index";
+import IndividualStockPage from "./IndividualStockPage";
+import { APIStockDataWrapper } from "@/APItypes";
 
-import CompanyProfile from "@/components/Stock/CompanyProfile";
-import { GrowthChartCard } from "@/components/Stock/GrowthChartCard";
-import MarketChartCard from "@/components/Stock/MarketChartCard";
-import {
-  fetchBalanceSheet,
-  fetchCashflowStatement,
-  fetchCompanyProfile,
-  fetchFinancialGrowth,
-  fetchIncomeStatement,
-  fetchMarketPrice,
-} from "@/lib/apiFetch";
-
-const IndividualStockPage = async ({ params }: { params: { id: string } }) => {
-  const symbol = params.id;
-  const companyProfile = await fetchCompanyProfile(symbol);
-  const financialGrowth = await fetchFinancialGrowth(symbol);
-  const marketPrice = await fetchMarketPrice(symbol);
-
-  const cashflowStatement = await fetchCashflowStatement(symbol);
-  const incomeStatement = await fetchIncomeStatement(symbol);
-  const balanceSheet = await fetchBalanceSheet(symbol);
-
+const Page = ({ params }: { params: { id: string } }) => {
   return (
-    <div className="w-full mx-auto flex flex-col items-center gap-y-4">
-      <CompanyProfile
-        balanceSheet={balanceSheet}
-        incomeStatement={incomeStatement}
-        cashflowStatement={cashflowStatement}
-        companyProfile={companyProfile}
-        financialGrowth={financialGrowth}
-      />
-      <MarketChartCard marketPrice={marketPrice} />
-      <GrowthChartCard financialGrowth={financialGrowth} />
-    </div>
+    <>
+      <StockPageWrapper params={params}>
+        {(data: APIStockDataWrapper) => {
+          if (!data) {
+            return <div>Loading...</div>;
+          }
+          return <IndividualStockPage data={data} />;
+        }}
+      </StockPageWrapper>
+    </>
   );
 };
 
-export default IndividualStockPage;
+export default Page;

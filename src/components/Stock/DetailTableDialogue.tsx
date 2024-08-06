@@ -49,7 +49,9 @@ export function DetailTableDialogue({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="secondary">Detail...</Button>
+        <Button variant="secondary" className="w-full">
+          Detail...
+        </Button>
       </DialogTrigger>
       <DialogContent className="h-[calc(100vh-4.5rem)] min-w-[calc(100vw-4.5rem)] ">
         <DialogHeader>

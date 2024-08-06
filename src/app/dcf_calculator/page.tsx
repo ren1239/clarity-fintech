@@ -47,7 +47,11 @@ export default function DcfCalculatorPage() {
                 DCF Valuation
               </CardTitle>
             </CardHeader>
-            <DcfForm setDcfResults={setDcfResults} setDcfInput={setDcfInput} />
+            <DcfForm
+              setDcfResults={setDcfResults}
+              setDcfInput={setDcfInput}
+              dcfInput={dcfInput}
+            />
           </Card>
         </div>
 

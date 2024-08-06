@@ -23,36 +23,41 @@ import { Card, CardHeader, CardTitle } from "./ui/card";
 // DCF form setup
 
 const FormSchema = z.object({
-  stockPrice: z.number().min(0).max(100000),
-  sharesOutstanding: z.number().min(1).max(10000000000),
+  stockPrice: z.number().min(0).max(100000000),
+  sharesOutstanding: z.number().min(1).max(10000000000000000),
   stGrowthRate: z.number().min(0).max(100),
   ltGrowthRate: z.number().min(0).max(100),
   discountRate: z.number().min(0).max(100),
   terminalValue: z.number().min(10).max(20),
-  stockBasedComp: z.number().min(0).max(100000000),
-  netCashDebt: z.number().min(0).max(100000000),
-  fcf: z.number().min(0).max(1000000000),
+  stockBasedComp: z.number().min(0).max(100000000000000),
+  netCashDebt: z.number().min(-100000000000000).max(1000000000000000),
+  fcf: z.number().min(0).max(100000000000000000),
   simpleCalculation: z.boolean(),
 });
 
 type DcfFormProps = {
   setDcfResults: React.Dispatch<React.SetStateAction<dcfResultsType | null>>;
   setDcfInput: React.Dispatch<React.SetStateAction<dcfCalculationType>>;
+  dcfInput: dcfCalculationType;
 };
 
-export function DcfForm({ setDcfResults, setDcfInput }: DcfFormProps) {
+export function DcfForm({
+  setDcfResults,
+  setDcfInput,
+  dcfInput,
+}: DcfFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      stockPrice: 0,
-      sharesOutstanding: 100,
-      stGrowthRate: 9,
-      ltGrowthRate: 5,
-      discountRate: 9,
-      terminalValue: 15,
-      stockBasedComp: 0,
-      netCashDebt: 0,
-      fcf: 100,
+      stockPrice: dcfInput.stockPrice || 0,
+      sharesOutstanding: dcfInput.sharesOutstanding || 100,
+      stGrowthRate: dcfInput.stGrowthRate || 9,
+      ltGrowthRate: dcfInput.ltGrowthRate || 5,
+      discountRate: dcfInput.discountRate || 9,
+      terminalValue: dcfInput.terminalValue || 15,
+      stockBasedComp: dcfInput.stockBasedComp || 0,
+      netCashDebt: dcfInput.netCashDebt || 0,
+      fcf: dcfInput.fcf || 100,
       simpleCalculation: true,
     },
   });
@@ -70,9 +75,21 @@ export function DcfForm({ setDcfResults, setDcfInput }: DcfFormProps) {
   //Create the handler to reutern a callback function to parseFloat the input or return null
   function handleInputChange(field: any) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value ? parseFloat(event.target.value) : null;
-      field.onChange(value);
+      const value = event.target.value.replace(/,/g, "").replace(/\$/g, ""); // Corrected to use global regex for dollar sign
+      if (!isNaN(Number(value)) || value === "") {
+        field.onChange(value === "" ? null : parseFloat(value));
+      }
     };
+  }
+
+  function formatNumber(value: number | null) {
+    if (value === null) return "";
+    return `${value.toLocaleString()}`;
+  }
+
+  function formatNumberDollar(value: number | null) {
+    if (value === null) return "";
+    return `$${value.toLocaleString()}`;
   }
 
   return (
@@ -121,14 +138,17 @@ export function DcfForm({ setDcfResults, setDcfInput }: DcfFormProps) {
                       The number of shares issued by the company{" "}
                     </FormDescription>
                   </div>
-                  <FormControl className="shrink-0 w-[100px] text-right">
-                    <Input
-                      {...field}
-                      type="number"
-                      onChange={handleInputChange(field)}
-                    />
-                  </FormControl>
-                  <FormMessage />
+                  <div className="flex flex-col items-end">
+                    <FormControl className="shrink-0 w-[150px] text-right">
+                      <Input
+                        {...field}
+                        type="text"
+                        value={formatNumber(field.value)}
+                        onChange={handleInputChange(field)}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </div>
                 </FormItem>
               )}
             />
@@ -145,11 +165,12 @@ export function DcfForm({ setDcfResults, setDcfInput }: DcfFormProps) {
                       The money left after paying for business costs
                     </FormDescription>
                   </div>
-                  <FormControl className="shrink-0 w-[100px] text-right">
+                  <FormControl className="shrink-0 w-[150px] text-right">
                     <Input
                       {...field}
-                      type="number"
+                      type="text"
                       onChange={handleInputChange(field)}
+                      value={formatNumberDollar(field.value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -253,11 +274,12 @@ export function DcfForm({ setDcfResults, setDcfInput }: DcfFormProps) {
                           upside/downside
                         </span>
                       </div>
-                      <FormControl className="shrink-0 w-[100px] text-right">
+                      <FormControl className="shrink-0 w-[140px] text-right">
                         <Input
                           {...field}
-                          type="number"
+                          type="text"
                           onChange={handleInputChange(field)}
+                          value={formatNumberDollar(field.value)}
                         />
                       </FormControl>
                       <FormMessage />
@@ -347,11 +369,12 @@ export function DcfForm({ setDcfResults, setDcfInput }: DcfFormProps) {
                           Details can be found in the company cashflow statement
                         </span>
                       </div>
-                      <FormControl className="shrink-0 w-[100px] text-right">
+                      <FormControl className="shrink-0 w-[140px] text-right">
                         <Input
                           {...field}
-                          type="number"
+                          type="text"
                           onChange={handleInputChange(field)}
+                          value={formatNumberDollar(field.value)}
                         />
                       </FormControl>
                       <FormMessage />
@@ -379,11 +402,12 @@ export function DcfForm({ setDcfResults, setDcfInput }: DcfFormProps) {
                           Details can be found on the company balance sheet
                         </span>
                       </div>
-                      <FormControl className="shrink-0 w-[100px] text-right">
+                      <FormControl className="shrink-0 w-[140px] text-right">
                         <Input
                           {...field}
-                          type="number"
+                          type="text"
                           onChange={handleInputChange(field)}
+                          value={formatNumberDollar(field.value)}
                         />
                       </FormControl>
                       <FormMessage />

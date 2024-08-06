@@ -20,6 +20,9 @@ import { DetailTabs } from "./DetailTabs";
 import { BuffetChecklistTabs } from "./BuffetChecklistTabs";
 import { Button } from "../ui/button";
 import { DetailTableDialogue } from "./DetailTableDialogue";
+import Link from "next/link";
+
+// Inside your component
 
 export default function CompanyProfile({
   companyProfile,
@@ -115,13 +118,20 @@ export default function CompanyProfile({
             <div className="flex flex-col flex-[0.7] justify-between gap-y-4">
               {/* Clarity Value Tab */}
               <ClarityValueCard companyProfile={companyProfile} />
-              <DetailTableDialogue
-                balanceSheet={balanceSheet}
-                incomeStatement={incomeStatement}
-                cashflowStatement={cashflowStatement}
-                financialGrowth={financialGrowth}
-                companyProfile={companyProfile}
-              />
+              <div className="w-full flex gap-x-4">
+                <div className="flex-1 w-full">
+                  <DetailTableDialogue
+                    balanceSheet={balanceSheet}
+                    incomeStatement={incomeStatement}
+                    cashflowStatement={cashflowStatement}
+                    financialGrowth={financialGrowth}
+                    companyProfile={companyProfile}
+                  />
+                </div>
+                <Link href={`/stock/${companyProfile.symbol}/dcf_calculator`}>
+                  <Button className="flex flex-1">Calculate Value</Button>
+                </Link>
+              </div>
               {/* <Button>Details</Button> */}
             </div>
           </div>

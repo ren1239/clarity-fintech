@@ -1,3 +1,12 @@
+export interface APIStockDataWrapper {
+  companyProfile: APICompanyProfileType | null;
+  financialGrowth: APIFinancialGrowthType[] | null;
+  marketPrice: APIMarketPriceType | null;
+  cashflowStatement: APICashflowStatementType[] | null;
+  incomeStatement: APIIncomeStatementType[] | null;
+  balanceSheet: APIBalanceSheetType[] | null;
+}
+
 export interface APICompanyProfileType {
   symbol: string;
   price: number;
