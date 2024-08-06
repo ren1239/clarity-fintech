@@ -1,5 +1,6 @@
 // stock/[id]/index.tsx
 "use server";
+import { unstable_noStore as noStore } from "next/cache";
 
 import { APIStockDataWrapper } from "@/APItypes";
 import { Card } from "@/components/ui/card";
@@ -23,6 +24,8 @@ const StockPageWrapper: React.FC<StockPageWrapperProps> = async ({
   children,
 }) => {
   const symbol = params.id;
+
+  noStore();
 
   let data: APIStockDataWrapper | null = null;
 

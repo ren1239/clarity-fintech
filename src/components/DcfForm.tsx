@@ -75,9 +75,22 @@ export function DcfForm({
   //Create the handler to reutern a callback function to parseFloat the input or return null
   function handleInputChange(field: any) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value.replace(/,/g, "").replace(/\$/g, ""); // Corrected to use global regex for dollar sign
+      const input = event.target;
+      const value = input.value.replace(/,/g, "").replace(/\$/g, "");
+      const cursorPosition = input.selectionStart;
+
+      //If the value is valid, update the field with the new value.
+
       if (!isNaN(Number(value)) || value === "") {
         field.onChange(value === "" ? null : parseFloat(value));
+
+        // Use setTimeout to restore the cursor position after updating the value.
+        setTimeout(() => {
+          if (input) {
+            input.selectionStart = cursorPosition;
+            input.selectionEnd = cursorPosition;
+          }
+        }, 0);
       }
     };
   }
