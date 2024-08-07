@@ -1,4 +1,5 @@
 import {
+  APIAnalystEstimatesType,
   APIBalanceSheetType,
   APICashflowStatementType,
   APICompanyProfileType,
@@ -85,4 +86,10 @@ export async function fetchBalanceSheet(
   id: string
 ): Promise<APIBalanceSheetType[] | null> {
   return fetchData<APIBalanceSheetType[]>(id, "balancesheet");
+}
+
+export async function fetchAnalystEstimates(
+  id: string
+): Promise<APIAnalystEstimatesType[] | null> {
+  return fetchData<APIAnalystEstimatesType[]>(id, "analystestimates");
 }

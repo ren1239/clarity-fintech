@@ -11,6 +11,7 @@ import { MarginOfSafetyCard } from "@/components/DcfCalculator/MarginOfSafetyCar
 import { FcfChartCard } from "@/components/DcfCalculator/FcfChartCard";
 import { TableDialogue } from "@/components/DcfCalculator/TableDialogue";
 import { dcfCalculation } from "@/components/Calculations/CalculateDcf";
+import { APIFinancialGrowthType } from "@/APItypes";
 
 export default function DcfCalculatorPage() {
   const [dcfResults, setDcfResults] = useState<dcfResultsType | null>(null);
@@ -25,12 +26,57 @@ export default function DcfCalculatorPage() {
     netCashDebt: 0,
     fcf: 100,
     simpleCalculation: false,
+    reportedCurrency: "USD",
+    stockCurrency: "USD",
   });
 
   useEffect(() => {
     const results = dcfCalculation(dcfInput);
     setDcfResults(results);
   }, []);
+
+  const financialGrowth: APIFinancialGrowthType[] = [
+    {
+      symbol: "empty",
+      date: "empty",
+      calendarYear: "empty",
+      period: "empty",
+      revenueGrowth: 0,
+      grossProfitGrowth: 0,
+      ebitgrowth: 0,
+      operatingIncomeGrowth: 0,
+      netIncomeGrowth: 0,
+      epsgrowth: 0,
+      epsdilutedGrowth: 0,
+      weightedAverageSharesGrowth: 0,
+      weightedAverageSharesDilutedGrowth: 0,
+      dividendsperShareGrowth: 0,
+      operatingCashFlowGrowth: 0,
+      freeCashFlowGrowth: 0,
+      tenYRevenueGrowthPerShare: 0,
+      fiveYRevenueGrowthPerShare: 0,
+      threeYRevenueGrowthPerShare: 0,
+      tenYOperatingCFGrowthPerShare: 0,
+      fiveYOperatingCFGrowthPerShare: 0,
+      threeYOperatingCFGrowthPerShare: 0,
+      tenYNetIncomeGrowthPerShare: 0,
+      fiveYNetIncomeGrowthPerShare: 0,
+      threeYNetIncomeGrowthPerShare: 0,
+      tenYShareholdersEquityGrowthPerShare: 0,
+      fiveYShareholdersEquityGrowthPerShare: 0,
+      threeYShareholdersEquityGrowthPerShare: 0,
+      tenYDividendperShareGrowthPerShare: 0,
+      fiveYDividendperShareGrowthPerShare: 0,
+      threeYDividendperShareGrowthPerShare: 0,
+      receivablesGrowth: 0,
+      inventoryGrowth: 0,
+      assetGrowth: 0,
+      bookValueperShareGrowth: 0,
+      debtGrowth: 0,
+      rdexpenseGrowth: 0,
+      sgaexpensesGrowth: 0,
+    },
+  ];
 
   return (
     <div className="flex-[1] pt-4 justify-between flex flex-col  relative space-y-4">
@@ -39,7 +85,7 @@ export default function DcfCalculatorPage() {
         <div className="flex-1">
           <Card className="p-3 relative">
             <div className=" absolute top-4 left-4">
-              <TableDialogue dcfResults={dcfResults} />
+              <TableDialogue dcfResults={dcfResults} dcfInput={dcfInput} />
             </div>
 
             <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row mb-8">
@@ -47,7 +93,12 @@ export default function DcfCalculatorPage() {
                 DCF Valuation
               </CardTitle>
             </CardHeader>
-            <DcfForm setDcfResults={setDcfResults} setDcfInput={setDcfInput} />
+            <DcfForm
+              setDcfResults={setDcfResults}
+              setDcfInput={setDcfInput}
+              dcfInput={dcfInput}
+              financialGrowth={financialGrowth}
+            />
           </Card>
         </div>
 
@@ -59,7 +110,7 @@ export default function DcfCalculatorPage() {
 
             <MarginOfSafetyCard dcfInput={dcfInput} dcfResults={dcfResults} />
           </div>
-          <DcfValueCard dcfResults={dcfResults} />
+          <DcfValueCard dcfResults={dcfResults} dcfInput={dcfInput} />
         </div>
       </div>
 

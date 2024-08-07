@@ -43,7 +43,7 @@ export function DetailTabs({
     );
   }
   return (
-    <Tabs defaultValue="keyMetrics" className="min-w-[400px]">
+    <Tabs defaultValue="keyMetrics" className="min-w-[350px]">
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="keyMetrics">Key Metrics</TabsTrigger>
         <TabsTrigger value="income">Income Statement</TabsTrigger>
