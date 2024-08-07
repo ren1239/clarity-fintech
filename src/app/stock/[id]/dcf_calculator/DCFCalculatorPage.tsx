@@ -25,23 +25,58 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-type ExchangeRates = {
-  [key: string]: {
-    [key: string]: number;
-  };
-};
 
 export default function DCFCalculatorPage({
   data,
 }: {
   data: APIStockDataWrapper;
 }) {
+  const [dcfResults, setDcfResults] = useState<dcfResultsType | null>(null);
+  const [dcfInput, setDcfInput] = useState<dcfCalculationType>({
+    stockPrice: data.marketPrice?.historical?.[0]?.close || 15,
+    sharesOutstanding: data.incomeStatement?.[0]?.weightedAverageShsOut || 100,
+    stGrowthRate: 9,
+    ltGrowthRate: 5,
+    discountRate: 9,
+    terminalValue: 15,
+    stockBasedComp: data.cashflowStatement?.[0]?.stockBasedCompensation || 0,
+    netCashDebt: data.balanceSheet?.[0]?.netDebt || 0,
+    fcf: data.cashflowStatement?.[0]?.freeCashFlow || 100,
+    simpleCalculation: false,
+    reportedCurrency: data.balanceSheet?.[0].reportedCurrency || "USD",
+    stockCurrency: data.companyProfile?.currency || "USD",
+  });
+
+  function calculateCAGR(growthRate: number, years: number) {
+    return Number((((1 + growthRate) ** (1 / years) - 1) * 100).toFixed());
+  }
+
+  // Safely accessing the growth rates
+
+  useEffect(() => {
+    if (data) {
+      const fiveYearGrowthRate =
+        data.financialGrowth?.[0]?.fiveYRevenueGrowthPerShare ?? 0;
+      const fiveYearCAGR = calculateCAGR(fiveYearGrowthRate, 5);
+      setDcfInput((prevInput) => ({
+        ...prevInput,
+        stGrowthRate: fiveYearCAGR * 0.6,
+        ltGrowthRate: fiveYearCAGR * 0.1,
+      }));
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (dcfInput) {
+      const results = dcfCalculation(dcfInput);
+      setDcfResults(results);
+    }
+  }, [dcfInput]);
+
   if (
     !data ||
     !data.companyProfile ||
@@ -58,41 +93,6 @@ export default function DCFCalculatorPage({
       </div>
     );
   }
-
-  function calculateCAGR(growthRate: number, years: number) {
-    return Number((((1 + growthRate) ** (1 / years) - 1) * 100).toFixed());
-  }
-
-  // Safely accessing the growth rates
-
-  const fiveYearGrowthRate =
-    data.financialGrowth?.[0]?.fiveYRevenueGrowthPerShare ?? 0;
-
-  // Calculate the CAGRs
-  const fiveYearCAGR = calculateCAGR(fiveYearGrowthRate, 5);
-
-  const [dcfResults, setDcfResults] = useState<dcfResultsType | null>(null);
-  const [dcfInput, setDcfInput] = useState<dcfCalculationType>({
-    stockPrice: data.marketPrice?.historical?.[0]?.close || 15,
-    sharesOutstanding: data.incomeStatement?.[0]?.weightedAverageShsOut || 100,
-    stGrowthRate: fiveYearCAGR * 0.6 || 9,
-    ltGrowthRate: fiveYearCAGR * 0.1 || 5,
-    discountRate: 9,
-    terminalValue: 15,
-    stockBasedComp: data.cashflowStatement?.[0]?.stockBasedCompensation || 0,
-    netCashDebt: data.balanceSheet?.[0]?.netDebt || 0,
-    fcf: data.cashflowStatement?.[0]?.freeCashFlow || 100,
-    simpleCalculation: false,
-    reportedCurrency: data.balanceSheet?.[0].reportedCurrency || "USD",
-    stockCurrency: data.companyProfile?.currency || "USD",
-  });
-
-  useEffect(() => {
-    if (dcfInput) {
-      const results = dcfCalculation(dcfInput);
-      setDcfResults(results);
-    }
-  }, [dcfInput]);
 
   return (
     <div className="w-full mx-auto flex flex-col items-center ">
