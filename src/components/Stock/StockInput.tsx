@@ -108,9 +108,15 @@ export default function StockInput() {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Search Stocks</Button>
+        <Button
+          className={` text-xs px-2
+                    md:h-9  md:px-3 md:text-sm`}
+          variant="outline"
+        >
+          Search Stocks
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[325px]">
+      <DialogContent className="max-w-[calc(100vw-2.5rem)] sm:max-w-[425px] rounded-lg -translate-y-full trans sm:-translate-y-1/2 ">
         <DialogHeader>
           <DialogTitle>Search</DialogTitle>
           <DialogDescription>

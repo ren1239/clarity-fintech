@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { APIStockDataWrapper } from "@/APItypes";
 import { Card } from "@/components/ui/card";
 import {
+  fetchAnalystEstimates,
   fetchBalanceSheet,
   fetchCashflowStatement,
   fetchCompanyProfile,
@@ -37,6 +38,7 @@ const StockPageWrapper: React.FC<StockPageWrapperProps> = async ({
       cashflowStatement,
       incomeStatement,
       balanceSheet,
+      analystEstimates,
     ] = await Promise.all([
       fetchCompanyProfile(symbol),
       fetchFinancialGrowth(symbol),
@@ -44,6 +46,7 @@ const StockPageWrapper: React.FC<StockPageWrapperProps> = async ({
       fetchCashflowStatement(symbol),
       fetchIncomeStatement(symbol),
       fetchBalanceSheet(symbol),
+      fetchAnalystEstimates(symbol),
     ]);
 
     // Check for null in individual data properties
@@ -53,7 +56,9 @@ const StockPageWrapper: React.FC<StockPageWrapperProps> = async ({
       !marketPrice ||
       !cashflowStatement ||
       !incomeStatement ||
-      !balanceSheet
+      !balanceSheet ||
+      !analystEstimates ||
+      analystEstimates.length === 0 // Add this check for empty array
     ) {
       throw new Error("Data not found");
     }
@@ -65,6 +70,7 @@ const StockPageWrapper: React.FC<StockPageWrapperProps> = async ({
       cashflowStatement,
       incomeStatement,
       balanceSheet,
+      analystEstimates,
     };
   } catch (error) {
     console.error(error);

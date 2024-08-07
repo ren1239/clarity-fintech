@@ -63,6 +63,8 @@ export interface dcfCalculationType {
   netCashDebt: number;
   fcf: number;
   simpleCalculation: Boolean;
+  reportedCurrency: string;
+  stockCurrency: string;
 }
 
 export interface dcfResultsType {

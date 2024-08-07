@@ -21,6 +21,7 @@ import { BuffetChecklistTabs } from "./BuffetChecklistTabs";
 import { Button } from "../ui/button";
 import { DetailTableDialogue } from "./DetailTableDialogue";
 import Link from "next/link";
+import { CompanyBanner } from "../CompanyBanner";
 
 // Inside your component
 
@@ -52,58 +53,13 @@ export default function CompanyProfile({
     );
   }
   return (
-    <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] w-3/4 ">
+    <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 ">
       <div className=" mx-auto w-full grow lg:flex space-y-10 lg:space-y-0 min-h-full ">
         {/* Left Side */}
 
         <div className="flex-3 flex-col min-h-full gap-y-4 gap-x-4 ">
           {/* Company Banner */}
-          <Card className="flex flex-row items-center justify-between gap-4 py-2 bg-neutral-100 ">
-            <div className="flex items-center gap-x-6 px-4">
-              <div className=" flex w-20 h-20 p-4 border-2 rounded-full items-center justify-center  bg-neutral-200 overflow-hidden">
-                <Image
-                  src={companyProfile.image}
-                  alt={companyProfile.companyName}
-                  width={100}
-                  height={100}
-                  style={{
-                    backgroundSize: "cover",
-                  }}
-                />
-              </div>
-              <div>
-                <CardTitle>
-                  {companyProfile.companyName}{" "}
-                  <span className=" italic font-light text-sm">
-                    ({companyProfile.symbol})
-                  </span>
-                </CardTitle>
-                <CardDescription>
-                  {companyProfile.exchange} || {companyProfile.industry}
-                </CardDescription>
-              </div>
-            </div>
-
-            {/* Market Price */}
-            <div className="flex gap-x-2 items-center px-4">
-              <p className="text-2xl font-semibold">
-                {moneyFormatter(companyProfile.price)}{" "}
-              </p>
-
-              {companyProfile.changes >= 0 ? (
-                <p className="text-green-600 flex">
-                  <ArrowBigUp />
-                  {moneyFormatter(companyProfile.changes)}
-                </p>
-              ) : (
-                <p className="text-red-600 flex">
-                  <ArrowBigDown />
-                  {moneyFormatter(companyProfile.changes)}
-                </p>
-              )}
-            </div>
-          </Card>
-
+          <CompanyBanner companyProfile={companyProfile} />
           {/* Detail Tab */}
 
           <div className="flex gap-4 pt-4 flex-col lg:flex-row">

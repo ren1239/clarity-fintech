@@ -1,16 +1,13 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ArrowBigDownDash,
-  ArrowBigUp,
-  ArrowBigUpDash,
-  Ghost,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ArrowBigDownDash, ArrowBigUpDash, Ghost } from "lucide-react";
 import { dcfCalculationType, dcfResultsType } from "@/types";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
-import numeral from "numeral";
-import { percentFormatter } from "../Calculations/Formatter";
+import {
+  convertCurrency,
+  moneyFormatter,
+  percentFormatter,
+} from "../Calculations/Formatter";
 
 export function MarginOfSafetyCard({
   dcfResults,
@@ -19,10 +16,18 @@ export function MarginOfSafetyCard({
   dcfResults: dcfResultsType | null;
   dcfInput: dcfCalculationType | null;
 }) {
-  const dcfValue = dcfResults?.dcfValue ?? 0;
+  const { reportedCurrency = "" } = dcfInput ?? {};
+  const { stockCurrency = "" } = dcfInput ?? {};
+
+  const dcfValue = convertCurrency(
+    dcfResults?.dcfValue ?? 0,
+    reportedCurrency,
+    stockCurrency
+  );
   const stockPrice = dcfInput?.stockPrice ?? 0;
 
-  const marginOfSafety = (dcfValue - stockPrice) / stockPrice;
+  const marginOfSafety = (dcfValue - stockPrice) / dcfValue;
+  const priceDifference = dcfValue - stockPrice;
 
   return (
     <Card className="w-1/2 h-full">
@@ -36,15 +41,31 @@ export function MarginOfSafetyCard({
               Margin of safety
             </CardDescription>
           </CardHeader>
-          <div className="flex-col">
-            {marginOfSafety >= 0 ? (
-              <h3 className="fill-foreground text-3xl font-bold text-green-500 flex items-center">
-                {percentFormatter(marginOfSafety)} <ArrowBigUpDash />
-              </h3>
+          <div className="flex-col items-center justify-center ">
+            {priceDifference >= 0 ? (
+              <>
+                <div className="flex text-green-500 items-center justify-center">
+                  <h3 className="fill-foreground text-3xl font-bold flex items-center">
+                    {percentFormatter(marginOfSafety)}
+                  </h3>
+                  <ArrowBigUpDash />
+                </div>
+                <p className="text-center p-2 bg-green-500 rounded-md bg-opacity-40 w-full">
+                  {moneyFormatter(priceDifference)} UnderValued
+                </p>
+              </>
             ) : (
-              <h3 className="fill-foreground text-3xl font-bold text-red-500 flex items-center">
-                {percentFormatter(marginOfSafety)} <ArrowBigDownDash />
-              </h3>
+              <>
+                <div className="flex text-red-500 items-center justify-center">
+                  <h3 className="fill-foreground text-3xl font-bold flex items-center">
+                    {percentFormatter(marginOfSafety)}
+                  </h3>
+                  <ArrowBigDownDash />
+                </div>
+                <p className="text-center p-2 bg-red-500 rounded-md bg-opacity-40 w-full">
+                  {moneyFormatter(-priceDifference)} Overvalued
+                </p>
+              </>
             )}
           </div>
         </div>

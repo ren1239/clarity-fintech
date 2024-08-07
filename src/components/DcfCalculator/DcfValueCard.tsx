@@ -20,8 +20,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
-import { dcfResultsType } from "@/types";
-import { moneyFormatter } from "../Calculations/Formatter";
+import { dcfCalculationType, dcfResultsType } from "@/types";
+import { convertCurrency, moneyFormatter } from "../Calculations/Formatter";
 
 const chartConfig = {
   valuation: {
@@ -35,8 +35,10 @@ const chartConfig = {
 
 export function DcfValueCard({
   dcfResults,
+  dcfInput,
 }: {
   dcfResults: dcfResultsType | null;
+  dcfInput: dcfCalculationType | null;
 }) {
   const dcfValue = dcfResults?.dcfValue ?? 0;
 
@@ -70,6 +72,9 @@ export function DcfValueCard({
     outMin: 50,
     outMax: 360,
   });
+
+  const { reportedCurrency = "" } = dcfInput ?? {};
+  const { stockCurrency = "" } = dcfInput ?? {};
 
   return (
     <Card className="flex flex-col">
@@ -115,14 +120,20 @@ export function DcfValueCard({
                           y={viewBox.cy}
                           className="fill-foreground text-4xl font-bold"
                         >
-                          {moneyFormatter(chartData[0].price)}
+                          {moneyFormatter(
+                            convertCurrency(
+                              chartData[0].price,
+                              reportedCurrency,
+                              stockCurrency
+                            )
+                          )}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Target Price
+                          Target Price {stockCurrency}
                         </tspan>
                       </text>
                     );

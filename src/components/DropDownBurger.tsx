@@ -34,7 +34,6 @@ export default async function DropDownBurger() {
           </Link> */}
         </DropdownMenuItem>
         <DropdownMenuItem>
-          {" "}
           <Link
             href={
               user ? `/compound_calculator/${user?.id}` : `/compound_calculator`
@@ -47,6 +46,8 @@ export default async function DropDownBurger() {
             Life Calculator
           </Link>
         </DropdownMenuItem>
+
+        {/* Retirement */}
         <DropdownMenuItem>
           <Link
             href="/retirement_calculator"
@@ -56,6 +57,19 @@ export default async function DropDownBurger() {
             })}
           >
             Retirement
+          </Link>
+        </DropdownMenuItem>
+
+        {/* Retirement */}
+        <DropdownMenuItem>
+          <Link
+            href="/dcf_calculator"
+            className={buttonVariants({
+              variant: "ghost",
+              size: "sm",
+            })}
+          >
+            Cash Flow
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

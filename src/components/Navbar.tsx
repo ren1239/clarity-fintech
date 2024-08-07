@@ -20,7 +20,7 @@ export default async function Navbar() {
       <MaxWidthWrapper>
         <div className="flex h-14 items-center justify-between border-b border-zinc-200">
           <div className=" flex space-x-1 items-center justify-center">
-            <div className="flex md:hidden">
+            <div className="flex lg:hidden">
               <DropDownBurger />
             </div>
             <Link href={"/"} className=" flex font-semibold tracking-tighter">
@@ -29,7 +29,7 @@ export default async function Navbar() {
           </div>
 
           {/* Mobile Navbar  & additional features*/}
-          <div className="hidden items-center space-x-4 md:flex">
+          <div className="hidden items-center space-x-4 lg:flex">
             {/* <Link
               href="/pricing"
               className={buttonVariants({
@@ -72,15 +72,15 @@ export default async function Navbar() {
             </Link>
           </div>
 
-          <div className="items-center space-x-4 ">
+          <div className="items-center space-x-4 flex ">
             {/* Signin / SignOut */}
             {user ? (
               <>
                 <LogoutLink
-                  className={buttonVariants({
+                  className={`hidden lg:flex ${buttonVariants({
                     variant: "ghost",
                     size: "sm",
-                  })}
+                  })}`}
                 >
                   Sign out
                 </LogoutLink>
@@ -88,10 +88,10 @@ export default async function Navbar() {
             ) : (
               <>
                 <LoginLink
-                  className={buttonVariants({
+                  className={`hidden lg:flex ${buttonVariants({
                     variant: "ghost",
                     size: "sm",
-                  })}
+                  })}`}
                 >
                   Sign in
                 </LoginLink>
@@ -111,10 +111,12 @@ export default async function Navbar() {
             {user ? (
               <>
                 <Link
-                  className={buttonVariants({
-                    variant: "default",
-                    size: "sm",
-                  })}
+                  className={` text-xs px-1
+                    md:h-9  md:px-3 md:text-sm
+                    ${buttonVariants({
+                      variant: "default",
+                      size: "sm",
+                    })}`}
                   href="/dashboard"
                 >
                   Dashboard
@@ -123,10 +125,12 @@ export default async function Navbar() {
             ) : (
               <>
                 <RegisterLink
-                  className={buttonVariants({
-                    variant: "default",
-                    size: "sm",
-                  })}
+                  className={` text-xs px-1
+                    md:h-9  md:px-3 md:text-sm
+                    ${buttonVariants({
+                      variant: "default",
+                      size: "sm",
+                    })}`}
                 >
                   Try for Free
                 </RegisterLink>

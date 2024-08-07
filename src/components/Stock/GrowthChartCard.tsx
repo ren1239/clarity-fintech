@@ -114,161 +114,165 @@ export function GrowthChartCard({
   const averageResults = calculateAverages(filteredData, chartKeyArray);
 
   return (
-    <Card className="w-3/4">
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-        <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>
-            Growth Chart -
-            {filteredData.length > 0 ? filteredData[0].symbol : "N/A"}
-          </CardTitle>
-          <CardDescription>
-            {filteredData.length
-              ? `${filteredData[0].calendarYear} - ${
-                  filteredData[filteredData.length - 1].calendarYear
-                }`
-              : ""}
-          </CardDescription>
-        </div>
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger
-            className="w-[160px] rounded-lg sm:ml-auto"
-            aria-label="Select a value"
+    <div className=" lg:w-3/4 lg:px-0 w-full px-4 ">
+      <Card className="">
+        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+          <div className="grid flex-1 gap-1 text-center sm:text-left">
+            <CardTitle>
+              Growth Chart -
+              {filteredData.length > 0 ? filteredData[0].symbol : "N/A"}
+            </CardTitle>
+            <CardDescription>
+              {filteredData.length
+                ? `${filteredData[0].calendarYear} - ${
+                    filteredData[filteredData.length - 1].calendarYear
+                  }`
+                : ""}
+            </CardDescription>
+          </div>
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger
+              className="w-[160px] rounded-lg sm:ml-auto"
+              aria-label="Select a value"
+            >
+              <SelectValue placeholder="10 years" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem className="rounded-lg" value={"10 years"}>
+                Last 10 years
+              </SelectItem>
+              <SelectItem className="rounded-lg" value={"5 years"}>
+                Last 5 years
+              </SelectItem>
+              <SelectItem className="rounded-lg" value={"3 years"}>
+                Last 3 years
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </CardHeader>
+        <CardContent className="flex flex-col lg:flex-row gap-x-8 mt-4 gap-y-8">
+          <ChartContainer
+            className=" w-full min-w-[250px] h-[150px] md:min-h-[500px]"
+            config={chartConfig}
           >
-            <SelectValue placeholder="10 years" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem className="rounded-lg" value={"10 years"}>
-              Last 10 years
-            </SelectItem>
-            <SelectItem className="rounded-lg" value={"5 years"}>
-              Last 5 years
-            </SelectItem>
-            <SelectItem className="rounded-lg" value={"3 years"}>
-              Last 3 years
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </CardHeader>
-      <CardContent className="flex flex-col lg:flex-row gap-x-8 mt-4 gap-y-8">
-        <ChartContainer
-          className=" w-full min-w-[250px] min-h-[500px]"
-          config={chartConfig}
-        >
-          <LineChart
-            accessibilityLayer
-            data={filteredData}
-            margin={{
-              top: 20,
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
+            <LineChart
+              accessibilityLayer
+              data={filteredData}
+              margin={{
+                top: 20,
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
 
-            <XAxis
-              dataKey="calendarYear"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 4)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" percent={true} />}
-            />
-
-            {/* Render lines conditionally based on visibility */}
-            {visibleLines.revenueGrowth && (
-              <Line
-                dataKey="revenueGrowth"
-                type="linear"
-                stroke="var(--color-revenueGrowth)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-revenueGrowth)",
-                }}
-                activeDot={{
-                  r: 6,
-                }}
+              <XAxis
+                dataKey="calendarYear"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 4)}
               />
-            )}
-
-            {visibleLines.freeCashFlowGrowth && (
-              <Line
-                dataKey="freeCashFlowGrowth"
-                type="linear"
-                stroke="var(--color-freeCashFlowGrowth)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-freeCashFlowGrowth)",
-                }}
-                activeDot={{
-                  r: 6,
-                }}
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent indicator="line" percent={true} />
+                }
               />
-            )}
 
-            {visibleLines.netIncomeGrowth && (
-              <Line
-                dataKey="netIncomeGrowth"
-                type="linear"
-                stroke="var(--color-netIncomeGrowth)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-netIncomeGrowth)",
-                }}
-                activeDot={{
-                  r: 6,
-                }}
+              {/* Render lines conditionally based on visibility */}
+              {visibleLines.revenueGrowth && (
+                <Line
+                  dataKey="revenueGrowth"
+                  type="linear"
+                  stroke="var(--color-revenueGrowth)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: "var(--color-revenueGrowth)",
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              )}
+
+              {visibleLines.freeCashFlowGrowth && (
+                <Line
+                  dataKey="freeCashFlowGrowth"
+                  type="linear"
+                  stroke="var(--color-freeCashFlowGrowth)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: "var(--color-freeCashFlowGrowth)",
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              )}
+
+              {visibleLines.netIncomeGrowth && (
+                <Line
+                  dataKey="netIncomeGrowth"
+                  type="linear"
+                  stroke="var(--color-netIncomeGrowth)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: "var(--color-netIncomeGrowth)",
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              )}
+
+              {visibleLines.epsgrowth && (
+                <Line
+                  dataKey="epsgrowth"
+                  type="linear"
+                  stroke="var(--color-epsgrowth)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: "var(--color-epsgrowth)",
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              )}
+
+              {visibleLines.bookValueperShareGrowth && (
+                <Line
+                  dataKey="bookValueperShareGrowth"
+                  type="linear"
+                  stroke="var(--color-bookValueperShareGrowth)"
+                  strokeWidth={2}
+                  dot={{
+                    fill: "var(--color-bookValueperShareGrowth)",
+                  }}
+                  activeDot={{
+                    r: 6,
+                  }}
+                />
+              )}
+
+              <ChartLegend
+                content={<ChartLegendContent />}
+                className="hidden md:flex"
               />
-            )}
-
-            {visibleLines.epsgrowth && (
-              <Line
-                dataKey="epsgrowth"
-                type="linear"
-                stroke="var(--color-epsgrowth)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-epsgrowth)",
-                }}
-                activeDot={{
-                  r: 6,
-                }}
-              />
-            )}
-
-            {visibleLines.bookValueperShareGrowth && (
-              <Line
-                dataKey="bookValueperShareGrowth"
-                type="linear"
-                stroke="var(--color-bookValueperShareGrowth)"
-                strokeWidth={2}
-                dot={{
-                  fill: "var(--color-bookValueperShareGrowth)",
-                }}
-                activeDot={{
-                  r: 6,
-                }}
-              />
-            )}
-
-            <ChartLegend
-              content={<ChartLegendContent />}
-              className="hidden md:flex"
-            />
-          </LineChart>
-        </ChartContainer>
-        <GrowthChartLegend
-          chartConfigArray={chartConfigArray}
-          visibleLines={visibleLines}
-          toggleLineVisibility={toggleLineVisibility}
-          averageResults={averageResults}
-        />
-      </CardContent>
-      <CardFooter className="flex justify-end">
-        <GrowthTableDialogue filteredData={filteredData} />
-      </CardFooter>
-    </Card>
+            </LineChart>
+          </ChartContainer>
+          <GrowthChartLegend
+            chartConfigArray={chartConfigArray}
+            visibleLines={visibleLines}
+            toggleLineVisibility={toggleLineVisibility}
+            averageResults={averageResults}
+          />
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          <GrowthTableDialogue filteredData={filteredData} />
+        </CardFooter>
+      </Card>
+    </div>
   );
 }
