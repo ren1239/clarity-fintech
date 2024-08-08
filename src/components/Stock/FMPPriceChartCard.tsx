@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
+import { ArrowBigDownDash, ArrowBigUpDash, TrendingUp } from "lucide-react";
 import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 
 import {
@@ -18,7 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { APICompanyProfileType } from "@/APItypes";
-import { moneyFormatter } from "../Calculations/Formatter";
+import { moneyFormatter, percentFormatter } from "../Calculations/Formatter";
 import { useMemo } from "react";
 
 const chartConfig = {
@@ -56,6 +56,26 @@ export function FMPPriceChartCard({
       ];
     }
   }, [companyProfile]);
+
+  let yearRange: number[] = [0, 0];
+
+  if (companyProfile && companyProfile.range) {
+    yearRange = companyProfile.range
+      .split("-")
+      .map((value) => parseFloat(value));
+  }
+
+  const value = companyProfile ? companyProfile.price : 0;
+
+  // Calculate the percentage width
+  const progressBarPercentage =
+    ((value - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100;
+
+  const priceDifference = companyProfile ? companyProfile.dcfDiff : 0;
+  const marginOfSafety = companyProfile
+    ? (companyProfile.dcf - companyProfile.price) / companyProfile.dcf
+    : 0;
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
@@ -122,9 +142,64 @@ export function FMPPriceChartCard({
           </ChartContainer>
         )}
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
+      {/* Progress Bar  */}
+
+      <div className="flex flex-col items-center justify-center -translate-y-4 ">
+        <p className="tracking-tighter text-muted-foreground text-sm italic">
+          52 Week Range
+        </p>
+
+        <div className="flex gap-x-4 items-center justify-center mb-4 ">
+          <p className="tracking-tighter text-muted-foreground text-sm italic">
+            {moneyFormatter(yearRange[0])}
+          </p>
+          <div className="h-4 min-w-32 max-w-64 ring-2 rounded-full ring-primary overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full"
+              style={{ width: `${progressBarPercentage}%` }}
+            ></div>
+          </div>
+          <p className="tracking-tighter text-muted-foreground text-sm italic">
+            {moneyFormatter(yearRange[1])}
+          </p>
+        </div>
+      </div>
+
+      {/* Card Footer Description */}
+
+      <CardFooter className="flex gap-x-4 text-sm border-t  justify-center py-4">
+        {/* Margin of Safety Number */}
+
+        <div className="flex-col items-center justify-center border-r pr-6">
+          {priceDifference <= 0 ? (
+            <div className="flex flex-col items-center">
+              <div className="flex text-green-500 items-center justify-center">
+                <h3 className="fill-foreground text-xl font-bold flex items-center">
+                  {percentFormatter(marginOfSafety)}
+                </h3>
+                <ArrowBigUpDash />
+              </div>
+              <p className="text-center p-2 bg-green-500 rounded-md bg-opacity-40 min-w-32 max-w-64 text-xs font-semibold">
+                {moneyFormatter(Math.abs(priceDifference))} Undervalued
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <div className="flex text-red-500 items-center justify-center">
+                <h3 className="fill-foreground text-3xl font-bold flex items-center">
+                  {percentFormatter(marginOfSafety)}
+                </h3>
+                <ArrowBigDownDash />
+              </div>
+              <p className="text-center p-2 bg-red-500 rounded-md bg-opacity-40 min-w-32 max-w-64 font-semibold">
+                {moneyFormatter(Math.abs(priceDifference))} Overvalued
+              </p>
+            </div>
+          )}
+        </div>
+
         {companyProfile && (
-          <div className="leading-none text-muted-foreground">
+          <div className=" leading-3 text-muted-foreground text-xs">
             The recommended intrinsic value of {companyProfile?.companyName} is{" "}
             <span className="font-semibold text-black">
               {moneyFormatter(companyProfile?.dcf)}
