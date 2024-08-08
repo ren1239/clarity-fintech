@@ -61,7 +61,7 @@ export function CoreGrowthChart({
       <CardContent>
         <ChartContainer
           config={chartConfig}
-          className="h-[80px] lg:h-[120px]  aspect-auto"
+          className="h-[80px] lg:h-[130px]  aspect-auto"
         >
           <AreaChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />

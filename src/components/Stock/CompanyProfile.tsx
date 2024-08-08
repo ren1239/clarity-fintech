@@ -52,6 +52,7 @@ export default function CompanyProfile({
       </div>
     );
   }
+
   return (
     <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 ">
       <div className=" mx-auto w-full grow lg:flex space-y-10 lg:space-y-0 min-h-full ">
@@ -68,6 +69,8 @@ export default function CompanyProfile({
                 balanceSheet={balanceSheet}
                 incomeStatement={incomeStatement}
                 cashflowStatement={cashflowStatement}
+                financialGrowth={financialGrowth}
+                companyProfile={companyProfile}
               />
             </div>
 
@@ -88,14 +91,11 @@ export default function CompanyProfile({
                   <Button className="flex flex-1">Calculate Value</Button>
                 </Link>
               </div>
-              {/* <Button>Details</Button> */}
             </div>
           </div>
         </div>
 
         {/* Right Side */}
-
-        {/* <BuffetChecklistTabs /> */}
       </div>
     </div>
   );
@@ -108,11 +108,11 @@ export const DetailCard = ({
   title: string;
   content: string;
 }) => (
-  <Card className="flex-1 flex-col items-center justify-center h-[130px]  ">
-    <CardHeader className="items-center pb-0 text-sm">
+  <Card className="flex-1 flex-col items-center justify-center   ">
+    <CardHeader className="items-center pb-0 text-sm py-2">
       <CardDescription className="text-center text-xs">{title}</CardDescription>
     </CardHeader>
-    <CardContent className="flex items-center justify-center pt-8">
+    <CardContent className="flex items-center justify-center py-2">
       <CardTitle>{content}</CardTitle>
     </CardContent>
   </Card>
@@ -138,6 +138,7 @@ export const ClarityValueCard = ({
         {/* DCF Price */}
 
         <FMPPriceChartCard companyProfile={companyProfile} />
+
         {/* Detailed Cards */}
 
         <div className=" flex items-center space-x-4 ">

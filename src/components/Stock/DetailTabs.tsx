@@ -16,6 +16,8 @@ import { CoreGrowthChart } from "./CoreGrowthChart";
 import {
   APIBalanceSheetType,
   APICashflowStatementType,
+  APICompanyProfileType,
+  APIFinancialGrowthType,
   APIIncomeStatementType,
 } from "@/APItypes";
 import {
@@ -29,12 +31,22 @@ export function DetailTabs({
   balanceSheet,
   cashflowStatement,
   incomeStatement,
+  financialGrowth,
+  companyProfile,
 }: {
   balanceSheet: APIBalanceSheetType[] | null;
   cashflowStatement: APICashflowStatementType[] | null;
   incomeStatement: APIIncomeStatementType[] | null;
+  financialGrowth: APIFinancialGrowthType[] | null;
+  companyProfile: APICompanyProfileType | null;
 }) {
-  if (!balanceSheet || !cashflowStatement || !incomeStatement) {
+  if (
+    !balanceSheet ||
+    !cashflowStatement ||
+    !incomeStatement ||
+    !companyProfile ||
+    !financialGrowth
+  ) {
     return (
       <div>
         <h1>404 - Not Found</h1>
@@ -42,6 +54,42 @@ export function DetailTabs({
       </div>
     );
   }
+
+  const toPercent = (value: number) => Number((value * 100).toFixed());
+
+  const grossMargin = toPercent(incomeStatement[0].grossProfitRatio);
+  const rndMargin = toPercent(
+    incomeStatement[0].researchAndDevelopmentExpenses /
+      incomeStatement[0].grossProfit
+  );
+  const depreciationMargin = toPercent(
+    incomeStatement[0].depreciationAndAmortization /
+      incomeStatement[0].grossProfit
+  );
+
+  const interestMargin = toPercent(
+    incomeStatement[0].interestExpense / incomeStatement[0].operatingIncome
+  );
+
+  const netIncomeMargin = toPercent(incomeStatement[0].netIncomeRatio);
+
+  const epsGrowth = toPercent(financialGrowth[0].epsgrowth);
+
+  const cashToDebtMargin = toPercent(
+    balanceSheet[0].cashAndShortTermInvestments / balanceSheet[0].totalDebt
+  );
+
+  const debtToEquity = toPercent(
+    balanceSheet[0].totalDebt / balanceSheet[0].totalStockholdersEquity
+  );
+
+  const preferredStock = balanceSheet[0].preferredStock;
+
+  const fcfGrowth = toPercent(financialGrowth[0].freeCashFlowGrowth);
+  const capExMargin = toPercent(
+    -cashflowStatement[0].capitalExpenditure / incomeStatement[0].netIncome
+  );
+
   return (
     <Tabs defaultValue="keyMetrics" className="min-w-[350px]">
       <TabsList className="grid w-full grid-cols-3">
@@ -93,39 +141,39 @@ export function DetailTabs({
             <CheckListItem
               title={"Gross Margin"}
               description={`Gross Profit / Revenue > 40%`}
-              data={31}
+              data={grossMargin}
               criteria={">40"}
             />
             <CheckListItem
               title={"R&D Margin"}
               description={`Research and Development / Gross Profit < 30%`}
-              data={21}
+              data={rndMargin}
               criteria={"<30"}
             />
             <CheckListItem
               title={"Depreciation Margin"}
               description={`Depreciation / Gross Profit < 10%`}
-              data={11}
+              data={depreciationMargin}
               criteria={"<10"}
             />
             <CheckListItem
               title={"Interest Margin"}
               description={`Interest Expense / Operating Income < 15%`}
-              data={21}
+              data={interestMargin}
               criteria={"<15"}
             />
 
             <CheckListItem
               title={"Net Income Margin"}
               description={`Net Income / Revenue > 20%`}
-              data={12}
+              data={netIncomeMargin}
               criteria={">20"}
             />
 
             <CheckListItem
               title={"EPS Growth"}
               description={`Earnings Per Share Growth  =  Positive`}
-              data={22}
+              data={epsGrowth}
               criteria={">0"}
             />
           </CardContent>
@@ -151,26 +199,21 @@ export function DetailTabs({
             {/* Checklist Items */}
             <CheckListItem
               title={"Cash to Debt"}
-              description={`Cash to be greater than debt`}
-              data={10}
-              criteria={">0"}
+              description={`Total Cash & short term assets / Total Debt > 100%`}
+              data={cashToDebtMargin}
+              criteria={">100"}
             />
             <CheckListItem
               title={"Debt to Equity"}
-              description={`Total Liabilities / Shareholder Equity + Tresury Stock < 0.80`}
-              data={0.6}
-              criteria={"<0.80"}
+              description={`Total Liabilities / Shareholder Equity <  80%`}
+              data={debtToEquity}
+              criteria={"<80"}
             />
-            <CheckListItem
-              title={"Depreciation Margin"}
-              description={`Depreciation / Gross Profit < 10%`}
-              data={11}
-              criteria={"<10"}
-            />
+
             <CheckListItem
               title={"Preferred Stock"}
               description={`Preferred Stock should be zero`}
-              data={0}
+              data={preferredStock}
               criteria={"<1"}
             />
           </CardContent>
@@ -184,14 +227,14 @@ export function DetailTabs({
             <CheckListItem
               title={"Free Cashflow Growth"}
               description={`Free Cashflow growth should be positive`}
-              data={12}
+              data={fcfGrowth}
               criteria={">0"}
             />
 
             <CheckListItem
               title={"Capex Margin"}
               description={`Capex / Net Income <25%`}
-              data={12}
+              data={capExMargin}
               criteria={"<25"}
             />
           </CardContent>
@@ -250,7 +293,7 @@ export const CheckListItem = ({
       <Card
         style={{
           backgroundColor: `hsla(${
-            isValid ? "12, 76%, 61%" : "173, 58%, 39%"
+            isValid ? "173, 58%, 39%" : "12, 76%, 61%"
           }, 0.1)`,
         }}
         className="flex min-w-14 h-10 items-center justify-center leading-none tracking-tight"

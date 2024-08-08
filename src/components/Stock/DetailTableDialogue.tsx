@@ -53,7 +53,7 @@ export function DetailTableDialogue({
           Detail...
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-[calc(100vh-4.5rem)] min-w-[calc(100vw-4.5rem)] ">
+      <DialogContent className="h-1/2 min-w-[calc(100vw-4.5rem)] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Detail Metrics</DialogTitle>
           <DialogDescription>
@@ -70,7 +70,7 @@ export function DetailTableDialogue({
           </TabsList>
 
           {/* Key Metrics */}
-          <TabsContent value="keyMetrics">
+          <TabsContent value="keyMetrics" className="overflow-y-hidden">
             <KeyTable
               balanceSheet={balanceSheet}
               incomeStatement={incomeStatement}
@@ -174,7 +174,7 @@ export function KeyTable({
   };
 
   return (
-    <Table>
+    <Table className="overflow-y-hidden">
       <TableHeader>
         <TableRow>
           <TableHead className="w-[250px]">Metric</TableHead>
@@ -183,7 +183,7 @@ export function KeyTable({
           ))}
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody className="overflow-y-hidden">
         {Object.entries(data).map(([metric, values]) => (
           <TableRow key={metric}>
             <TableCell className="font-medium">{metric}</TableCell>
@@ -204,7 +204,6 @@ export function KeyTable({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter></TableFooter>
     </Table>
   );
 }
@@ -285,7 +284,6 @@ export function IncomeTable({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter></TableFooter>
     </Table>
   );
 }
@@ -372,7 +370,6 @@ export function BalanceTable({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter></TableFooter>
     </Table>
   );
 }
@@ -459,7 +456,6 @@ export function CashflowTable({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter></TableFooter>
     </Table>
   );
 }
@@ -546,7 +542,6 @@ export function GrowthTable({
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter></TableFooter>
     </Table>
   );
 }

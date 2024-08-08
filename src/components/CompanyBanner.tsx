@@ -15,7 +15,7 @@ export const CompanyBanner = ({
   }
   return (
     <>
-      <Card className="flex flex-row items-center justify-between gap-1 py-2 bg-neutral-100 ">
+      <Card className="flex flex-row items-center justify-between gap-1 py-2 bg-neutral-100/80 sticky top-16 z-10 backdrop-blur-md">
         <div className="flex items-center gap-x-6 pl-4">
           <Link href={`/stock/${companyProfile.symbol}`}>
             <div className=" flex w-20  md:p-4 md:border-2 rounded-full items-center justify-center  bg-neutral-200 overflow-hidden relative">
