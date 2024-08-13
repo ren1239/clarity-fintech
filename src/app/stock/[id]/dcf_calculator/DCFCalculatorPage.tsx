@@ -1,34 +1,22 @@
 "use client";
 
-import { APIAnalystEstimatesType, APIStockDataWrapper } from "@/APItypes";
-import {
-  moneyFormatter,
-  percentFormatter,
-} from "@/components/Calculations/Formatter";
+import { APIStockDataWrapper } from "@/APItypes";
+
 import { DcfValueCard } from "@/components/DcfCalculator/DcfValueCard";
 import { MarginOfSafetyCard } from "@/components/DcfCalculator/MarginOfSafetyCard";
 import { StockPriceCard } from "@/components/DcfCalculator/StockPriceCard";
 import { TableDialogue } from "@/components/DcfCalculator/TableDialogue";
 import { DcfForm } from "@/components/DcfForm";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
 import { dcfCalculationType, dcfResultsType } from "@/types";
 import { dcfCalculation } from "@/components/Calculations/CalculateDcf";
 import { CompanyBanner } from "@/components/CompanyBanner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
+import { AnalystEstimatesCard } from "@/components/DcfCalculator/AnalystEstimatesCard";
+import SensitivityAnalysisCard from "@/components/DcfCalculator/SensitivityAnalysisCard";
+import BackTestDCFCard from "@/components/DcfCalculator/BackTestDCFCard";
 
 export default function DCFCalculatorPage({
   data,
@@ -84,7 +72,8 @@ export default function DCFCalculatorPage({
     !data.cashflowStatement ||
     !data.incomeStatement ||
     !data.financialGrowth ||
-    !data.analystEstimates
+    !data.analystEstimates ||
+    !data.marketPrice
   ) {
     return (
       <div>
@@ -144,10 +133,32 @@ export default function DCFCalculatorPage({
               <DcfValueCard dcfResults={dcfResults} dcfInput={dcfInput} />
             </div>
           </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+            {/* Sensitivity Analysis Card Section  */}
+            <div className="space-y-4 ">
+              <SensitivityAnalysisCard
+                dcfInput={dcfInput}
+                analystEstimates={data.analystEstimates}
+              />
+            </div>
 
-          {/* Bottom Side */}
+            {/* Back Test Analysis Card Section  */}
+            <div className="space-y-4 ">
+              <BackTestDCFCard
+                dcfInput={dcfInput}
+                analystEstimates={data.analystEstimates}
+                financialGrowth={data.financialGrowth}
+                cashflowStatement={data.cashflowStatement}
+                dcfResults={dcfResults}
+                balanceSheet={data.balanceSheet}
+                incomeStatement={data.incomeStatement}
+                marketPrice={data.marketPrice}
+              />
+            </div>
+          </div>
+
+          {/*  Analyst Estimates Card Section */}
           <div className="grow space-y-4">
-            {/* <FcfChartCard dcfResults={dcfResults} /> */}
             <AnalystEstimatesCard analystEstimates={data.analystEstimates} />
           </div>
         </div>
@@ -155,77 +166,3 @@ export default function DCFCalculatorPage({
     </div>
   );
 }
-
-export const AnalystEstimatesCard = ({
-  analystEstimates,
-}: {
-  analystEstimates: APIAnalystEstimatesType[];
-}) => {
-  if (!analystEstimates) return <>Loading...</>;
-
-  const calculateAverageGrowth = (
-    analystEstimates: APIAnalystEstimatesType[]
-  ) => {
-    return analystEstimates.map((year, i) => {
-      if (i === analystEstimates.length - 1)
-        return { ...year, growthRate: null }; // No previous year to compare with
-      const growthRate =
-        (year.estimatedEpsAvg - analystEstimates[i + 1].estimatedEpsAvg) /
-        analystEstimates[i + 1].estimatedEpsAvg;
-      return { ...year, growthRate };
-    });
-  };
-
-  const analystEstimatesWithGrowth = calculateAverageGrowth(analystEstimates);
-
-  return (
-    <div className="w-full h-[50vh] overflow-y-auto">
-      <Card className="  ">
-        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row mb-8 relative">
-          <div className="flex flex-col items-center w-full">
-            <CardTitle className="text-center mx-auto text-xl md:text-2xl">
-              Analyst Estimates
-            </CardTitle>
-            <CardDescription>
-              These are the estimates of growth by financial institutions - Take
-              this with a grain of salt.
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="">Year</TableHead>
-              <TableHead>Estimated EPS (Low)</TableHead>
-              <TableHead>Estimated EPS (Avg)</TableHead>
-              <TableHead>Estimated EPS (High)</TableHead>
-
-              <TableHead>Estimated Growth </TableHead>
-              <TableHead>Number of Analysts EPS </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {analystEstimatesWithGrowth.map((year) => (
-              <TableRow key={year.date}>
-                <TableCell className="font-medium">
-                  {year.date.slice(0, 4)}
-                </TableCell>
-                <TableCell className="font-medium">
-                  {moneyFormatter(year.estimatedEpsLow)}
-                </TableCell>
-                <TableCell>{moneyFormatter(year.estimatedEpsAvg)}</TableCell>
-                <TableCell>{moneyFormatter(year.estimatedEpsHigh)}</TableCell>
-                <TableCell>
-                  {year.growthRate !== null
-                    ? percentFormatter(year.growthRate)
-                    : "N/A"}
-                </TableCell>
-                <TableCell>{year.numberAnalystsEstimatedEps}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-    </div>
-  );
-};

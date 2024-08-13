@@ -41,7 +41,7 @@ export default function MarketChartCard({
     [marketPrice]
   );
 
-  const [timeRange, setTimeRange] = useState("5Y");
+  const [timeRange, setTimeRange] = useState("All");
 
   const filteredData: MarketPriceType[] = useMemo(() => {
     const now = new Date();
@@ -57,8 +57,11 @@ export default function MarketChartCard({
         startDate = subMonths(now, 1);
         break;
       case "5Y":
-      default:
         startDate = subYears(now, 5);
+        break;
+      case "All":
+      default:
+        startDate = subYears(now, 20);
         break;
     }
     return historicalData.filter((item) => new Date(item.date) >= startDate);
@@ -82,6 +85,9 @@ export default function MarketChartCard({
               <SelectValue placeholder="5 Years" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
+              <SelectItem className="rounded-lg" value="All">
+                All
+              </SelectItem>
               <SelectItem className="rounded-lg" value="5Y">
                 5 Years
               </SelectItem>

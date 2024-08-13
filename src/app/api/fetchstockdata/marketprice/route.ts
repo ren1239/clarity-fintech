@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   }
 
   const todaysDate = new Date();
-  const retrievalDate = subYears(todaysDate, 5);
+  const retrievalDate = subYears(todaysDate, 20);
 
   const formattedTodaysDate = format(todaysDate, "yyy-MM-dd");
   const formattedRetrivalDate = format(retrievalDate, "yyy-MM-dd");

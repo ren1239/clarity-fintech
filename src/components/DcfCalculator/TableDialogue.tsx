@@ -39,7 +39,7 @@ export function TableDialogue({
       <DialogTrigger asChild>
         <Button variant="secondary">Detail...</Button>
       </DialogTrigger>
-      <DialogContent className="h-1/2 max-w-[calc(100vw-4rem)] rounded-lg  ">
+      <DialogContent className="h-3/4 max-w-[calc(100vw-4rem)] rounded-lg  ">
         <DialogHeader>
           <DialogTitle>Free Cashflow Projection</DialogTitle>
           <DialogDescription>
