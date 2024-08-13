@@ -177,126 +177,123 @@ export function BacktestDcfChart({
 }: {
   replicatedBacktestResults: backtestMarketType[] | null;
 }) {
-  if (replicatedBacktestResults) {
-    const [DCFPriceComparison, setDCFPriceComparison] =
-      useState<DCFPriceComparisonType>("fallsWithin");
+  replicatedBacktestResults = replicatedBacktestResults || [];
 
-    useEffect(() => {
-      let allExceed = true;
-      let allBelow = true;
+  const [DCFPriceComparison, setDCFPriceComparison] =
+    useState<DCFPriceComparisonType>("fallsWithin");
 
-      for (let month of replicatedBacktestResults) {
-        if (month.dcfValue > month.marketPrice) {
-          allExceed = false;
-        } else if (month.dcfValue < month.marketPrice) {
-          allBelow = false;
-        }
-        if (!allBelow && !allExceed) {
-          setDCFPriceComparison("fallsWithin");
-          break;
-        }
+  useEffect(() => {
+    let allExceed = true;
+    let allBelow = true;
+
+    for (let month of replicatedBacktestResults) {
+      if (month.dcfValue > month.marketPrice) {
+        allExceed = false;
+      } else if (month.dcfValue < month.marketPrice) {
+        allBelow = false;
       }
-
-      if (allBelow) {
-        setDCFPriceComparison("isBelow");
-      } else if (allExceed) {
-        setDCFPriceComparison("exceeds");
-      } else {
+      if (!allBelow && !allExceed) {
         setDCFPriceComparison("fallsWithin");
+        break;
       }
-    }, [replicatedBacktestResults]);
+    }
 
-    const descriptions = {
-      exceeds: `This company has historically traded above its intrinsic value. It implies that investors have consistently placed a premium on the stock, perhaps due to high growth expectations, strong brand equity, or market inefficiencies. The market has historically paid a premium to invest in this company.`,
-      isBelow: `This company has historically traded below its intrinsic value. It suggests that the market may have consistently underappreciated the company, perhaps due to lack of visibility, market sentiment, or other factors. Despite strong cash flow or fundamentals, the market has not rewarded the stock accordingly.`,
-      fallsWithin: `This company has experienced periods where it was both undervalued and overvalued relative to its intrinsic value. It implies that the market has, at different times, either overvalued or undervalued the stock. This suggests that there have been opportunities in the past to invest at a fair value.`,
-    };
+    if (allBelow) {
+      setDCFPriceComparison("isBelow");
+    } else if (allExceed) {
+      setDCFPriceComparison("exceeds");
+    } else {
+      setDCFPriceComparison("fallsWithin");
+    }
+  }, [replicatedBacktestResults]);
 
-    const valueTitles = {
-      exceeds: "Consistently Overvalued",
-      isBelow: "Persistently Undervalued",
-      fallsWithin: "Historically Balanced",
-    };
+  const descriptions = {
+    exceeds: `This company has historically traded above its intrinsic value. It implies that investors have consistently placed a premium on the stock, perhaps due to high growth expectations, strong brand equity, or market inefficiencies. The market has historically paid a premium to invest in this company.`,
+    isBelow: `This company has historically traded below its intrinsic value. It suggests that the market may have consistently underappreciated the company, perhaps due to lack of visibility, market sentiment, or other factors. Despite strong cash flow or fundamentals, the market has not rewarded the stock accordingly.`,
+    fallsWithin: `This company has experienced periods where it was both undervalued and overvalued relative to its intrinsic value. It implies that the market has, at different times, either overvalued or undervalued the stock. This suggests that there have been opportunities in the past to invest at a fair value.`,
+  };
 
-    return (
-      <Card className="h-full">
-        <CardHeader>
-          <CardTitle>Historic DCF Valuation</CardTitle>
-          <CardDescription>
-            DCF valuation overlayed upon Historic Data
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={chartConfig}
-            className="h-[300px] aspect-auto"
+  const valueTitles = {
+    exceeds: "Consistently Overvalued",
+    isBelow: "Persistently Undervalued",
+    fallsWithin: "Historically Balanced",
+  };
+
+  if (!replicatedBacktestResults || !DCFPriceComparison) return <>Loading...</>;
+
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Historic DCF Valuation</CardTitle>
+        <CardDescription>
+          DCF valuation overlayed upon Historic Data
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig} className="h-[300px] aspect-auto">
+          <ComposedChart
+            accessibilityLayer
+            data={replicatedBacktestResults}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
           >
-            <ComposedChart
-              accessibilityLayer
-              data={replicatedBacktestResults}
-              margin={{
-                left: 12,
-                right: 12,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="year"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => value.slice(2, 4)}
-                minTickGap={64}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="line" />}
-              />
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="year"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value.slice(2, 4)}
+              minTickGap={64}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent indicator="line" />}
+            />
 
-              <Bar
-                dataKey="dcfValue"
-                type="linear"
-                radius={8}
-                fill="var(--color-dcfValue)"
-                fillOpacity={0.5}
-                stroke="var(--color-dcfValue)"
-              />
-              <Line
-                dataKey="marketPrice"
-                type="natural"
-                fill="var(--color-marketPrice)"
-                fillOpacity={0.2}
-                stroke="var(--color-marketPrice)"
-                strokeWidth={2}
-                dot={false}
-                strokeDasharray="3 3"
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-            </ComposedChart>
-          </ChartContainer>
-        </CardContent>
-        <CardFooter className="flex-col items-start gap-2 text-sm">
-          <div className="flex gap-2 font-medium leading-none items-center ">
-            Analysis:
-            <span
-              className={`p-2 rounded-md ${
-                DCFPriceComparison === "exceeds"
-                  ? "bg-red-200"
-                  : DCFPriceComparison === "isBelow"
-                  ? "bg-green-200"
-                  : "bg-orange-200"
-              }`}
-            >
-              {valueTitles[DCFPriceComparison]}
-            </span>
-          </div>
-          <div className="leading-none text-muted-foreground">
-            {descriptions[DCFPriceComparison]}
-          </div>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  if (!replicatedBacktestResults) return <>Loading...</>;
+            <Bar
+              dataKey="dcfValue"
+              type="linear"
+              radius={8}
+              fill="var(--color-dcfValue)"
+              fillOpacity={0.5}
+              stroke="var(--color-dcfValue)"
+            />
+            <Line
+              dataKey="marketPrice"
+              type="natural"
+              fill="var(--color-marketPrice)"
+              fillOpacity={0.2}
+              stroke="var(--color-marketPrice)"
+              strokeWidth={2}
+              dot={false}
+              strokeDasharray="3 3"
+            />
+            <ChartLegend content={<ChartLegendContent />} />
+          </ComposedChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        <div className="flex gap-2 font-medium leading-none items-center ">
+          Analysis:
+          <span
+            className={`p-2 rounded-md ${
+              DCFPriceComparison === "exceeds"
+                ? "bg-red-200"
+                : DCFPriceComparison === "isBelow"
+                ? "bg-green-200"
+                : "bg-orange-200"
+            }`}
+          >
+            {valueTitles[DCFPriceComparison]}
+          </span>
+        </div>
+        <div className="leading-none text-muted-foreground">
+          {descriptions[DCFPriceComparison]}
+        </div>
+      </CardFooter>
+    </Card>
+  );
 }
