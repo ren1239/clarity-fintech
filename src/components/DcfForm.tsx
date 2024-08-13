@@ -27,6 +27,7 @@ import {
 } from "./ui/card";
 import { APIFinancialGrowthType } from "@/APItypes";
 import { percentFormatter } from "./Calculations/Formatter";
+import { useEffect } from "react";
 
 // DCF form setup
 
@@ -75,6 +76,11 @@ export function DcfForm({
       stockCurrency: dcfInput.stockCurrency || "USD",
     },
   });
+
+  // Reset form values when dcfInput changes
+  useEffect(() => {
+    form.reset(dcfInput); // Reset form with new dcfInput values
+  }, [dcfInput, form]);
 
   function calculateCAGR(growthRate: number, years: number) {
     return Number((((1 + growthRate) ** (1 / years) - 1) * 100).toFixed(1));

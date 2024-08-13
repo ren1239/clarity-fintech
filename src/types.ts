@@ -62,7 +62,7 @@ export interface dcfCalculationType {
   stockBasedComp: number;
   netCashDebt: number;
   fcf: number;
-  simpleCalculation: Boolean;
+  simpleCalculation: boolean;
   reportedCurrency: string;
   stockCurrency: string;
 }
