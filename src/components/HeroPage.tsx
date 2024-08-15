@@ -37,7 +37,7 @@ export default function HeroPage() {
       <div>
         <div className="relative ">
           <div className="absolute hidden lg:w-64 lg:block pointer-events-none"></div>
-          <DecorativeBackground />
+          <DecorativeBackground rotation={90} translation={55} />
 
           <div>
             <div className="mx-auto max-w-6xl px-6 lg:px-8">
@@ -57,9 +57,52 @@ export default function HeroPage() {
           </div>
 
           {/* Add the decorator Back */}
-          <DecorativeBackground />
         </div>
       </div>
+
+      {/*  Stock Analysis Tool */}
+
+      <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center relative">
+        <h1 className=" relative max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl ">
+          Stock analysis <br />
+          <span className="text-primary"> Toolkit </span>
+          <div className="absolute  -top-32 -right-16 hidden lg:w-64 lg:block pointer-events-none"></div>
+        </h1>
+        <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
+          <span className="text-primary text-xs">
+            {" "}
+            What are you waiting for...{" "}
+          </span>
+        </p>
+        <p>
+          Money is the tool |
+          <span className="text-primary font-bold text-lg pt-10">
+            {" "}
+            freedom{" "}
+          </span>
+          is the goal
+        </p>
+      </MaxWidthWrapper>
+
+      {/*  Analysis Image */}
+
+      <section className="relative">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <div className="mt-16 flow-root sm:mt-24">
+            <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+              <Image
+                src="/file-upload-preview.jpg"
+                alt="product preview"
+                width={1920}
+                height={1200}
+                quality={100}
+                className="rounded-md bg-white p-2 sm:p-8 md:p-2 shadow-2xl ring-1 ring-gray-900/10"
+              />
+            </div>
+          </div>
+        </div>
+        <DecorativeBackground rotation={10} translation={0} />
+      </section>
 
       {/* Feature Section */}
       <div className="mx-auto mb-36 mt-32 max-w-5xl sm:mt-56 ">
@@ -108,46 +151,6 @@ export default function HeroPage() {
             </div>
           </li>
         </ol>
-
-        {/*  Final Image */}
-
-        <div className="mx-auto max-w-6xl px-6 lg:px-8 relative">
-          <DecorativeBackground />
-
-          <div className="mt-16 flow-root sm:mt-24">
-            <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-              <Image
-                src="/file-upload-preview.jpg"
-                alt="uploading preview"
-                width={1920}
-                height={1200}
-                quality={100}
-                className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/*  Final Image */}
-
-        <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center relative">
-          <h1 className=" relative max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl ">
-            Stock analysis <br />
-            <span className="text-primary"> Toolkit </span>
-            <div className="absolute  -top-32 -right-16 hidden lg:w-64 lg:block pointer-events-none"></div>
-          </h1>
-          <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-            <span className="text-primary text-xs"> Coming Soon... </span>
-          </p>
-          <p>
-            Money is the tool |
-            <span className="text-primary font-bold text-lg pt-10">
-              {" "}
-              freedom{" "}
-            </span>
-            is the goal
-          </p>
-        </MaxWidthWrapper>
       </div>
     </>
   );

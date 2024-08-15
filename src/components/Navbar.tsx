@@ -117,7 +117,7 @@ export default async function Navbar() {
                       variant: "default",
                       size: "sm",
                     })}`}
-                  href="/dashboard"
+                  href={`/dashboard/${user.id}`}
                 >
                   Dashboard
                 </Link>
