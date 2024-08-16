@@ -4,6 +4,9 @@ import { PortfolioDBType, PriceByDateType } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { APIMarketPriceType } from "@/APItypes";
 import { fetchMarketPrice } from "@/lib/apiFetch";
+import { convertCurrency } from "../Calculations/Formatter";
+
+export const revalidate = 86400; // Revalidate data every 24 hours
 
 export default async function HistoricOverview({
   portfolioDbData,
@@ -49,7 +52,7 @@ export default async function HistoricOverview({
   //
   // Create a new component to handle the historic price of entire portfolio
 
-  const priceByDate: PriceByDateType = {};
+  const priceByDate: PriceByDateType[] = [];
 
   //Iterate through portfolio historic prices with for each, because you want side effects, not a returned array
   marketPrice.forEach((entry) => {
@@ -58,28 +61,54 @@ export default async function HistoricOverview({
       portfolioDbData.find((dataEntry) => dataEntry.ticker === symbol)?._sum
         .quantity ?? 0;
 
-    entry.historical.forEach((historicalEntry) => {
+    let lastPrice = 0;
+
+    entry.historical.reverse().forEach((historicalEntry) => {
       const date = historicalEntry.date;
       const price = historicalEntry.open || 0;
+      const calculatedPrice = shares * price;
 
-      //If the date does not exist, create it an empty object
-      if (!priceByDate[date]) {
-        priceByDate[date] = {};
+      let dateEntry = priceByDate.find((d) => d.date === date);
+      if (!dateEntry) {
+        dateEntry = { date: date, prices: {} };
+        priceByDate.push(dateEntry);
       }
 
-      priceByDate[date][symbol] = shares * price;
+      // Perform currency conversion if necessary
+      const stockCurrency =
+        portfolioDbData.find((dataEntry) => dataEntry.ticker === symbol)
+          ?.currency || "USD";
+
+      const convertedPrice =
+        stockCurrency !== "USD"
+          ? convertCurrency(calculatedPrice, stockCurrency, "USD")
+          : calculatedPrice;
+
+      dateEntry.prices[symbol] = convertedPrice || lastPrice;
+      lastPrice = dateEntry.prices[symbol];
     });
   });
 
-  const portfolioMarketData = Object.keys(priceByDate).map((date) => {
-    return {
-      date: date,
-      ...priceByDate[date],
-    };
+  priceByDate.forEach((dateEntry, index, array) => {
+    portfolioSymbols.forEach((symbol) => {
+      if (!(symbol in dateEntry.prices)) {
+        if (index > 0) {
+          const previousEntry = array[index - 1];
+          dateEntry.prices[symbol] = previousEntry.prices[symbol];
+        } else {
+          dateEntry.prices[symbol] = 0; // Default to 0 if there's no previous data
+        }
+      }
+    });
   });
+
+  const portfolioMarketData = priceByDate.map((entry) => ({
+    date: entry.date,
+    ...entry.prices,
+  }));
+
   return (
-    <div>
-      PortfolioValueCard
+    <div className="w-full">
       <PortfolioChart
         portfolioMarketData={portfolioMarketData}
         portfolioSymbols={portfolioSymbols}

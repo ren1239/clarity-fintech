@@ -44,13 +44,19 @@ export function PortfolioChart({
   const [timeRange, setTimeRange] = useState("1M");
 
   const historicalData = useMemo(
-    () => (portfolioMarketData ? portfolioMarketData.slice().reverse() : []),
+    () => (portfolioMarketData ? portfolioMarketData : []),
     [portfolioMarketData]
   );
 
   const filteredData: portfolioValueType[] = useMemo(() => {
     const now = new Date();
     let startDate: Date;
+
+    // Ensure historicalData is sorted by date
+    const sortedHistoricalData = historicalData.slice().sort((a, b) => {
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    });
+
     switch (timeRange) {
       case "1W":
         startDate = subDays(now, 7);
@@ -64,16 +70,33 @@ export function PortfolioChart({
       case "1Y":
         startDate = subYears(now, 1);
         break;
-
       case "5Y":
         startDate = subYears(now, 5);
         break;
       case "All":
         startDate = subYears(now, 20);
         break;
+      default:
+        throw new Error(`Unexpected timeRange value: ${timeRange}`);
     }
-    return historicalData.filter((item) => new Date(item.date) >= startDate);
-  }, [timeRange, portfolioMarketData]);
+
+    // Filter the sorted data based on the time range
+    const filteredData = sortedHistoricalData.filter((item) => {
+      const itemDate = new Date(item.date);
+      return itemDate >= startDate;
+    });
+
+    // Further reduce the data points for "5Y" and "All" time ranges
+    if (timeRange === "All") {
+      return filteredData.filter((item, index) => index % 50 === 0);
+    } else if (timeRange === "5Y") {
+      return filteredData.filter((item, index) => index % 20 === 0);
+    } else if (timeRange === "1Y") {
+      return filteredData.filter((item, index) => index % 5 === 0);
+    } else {
+      return filteredData;
+    }
+  }, [timeRange, historicalData]);
 
   if (!portfolioMarketData || !portfolioSymbols) {
     return <div>Loading...</div>;
@@ -146,29 +169,29 @@ export function PortfolioChart({
             <SelectValue placeholder="5 Years" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
-            <SelectItem className="rounded-lg" value="All">
-              All
-            </SelectItem>
-            <SelectItem className="rounded-lg" value="5Y">
-              5 Years
-            </SelectItem>
-            <SelectItem className="rounded-lg" value="1Y">
-              1 Year
-            </SelectItem>
-            <SelectItem className="rounded-lg" value="6M">
-              6 Months
+            <SelectItem className="rounded-lg" value="1W">
+              1 Week
             </SelectItem>
             <SelectItem className="rounded-lg" value="1M">
               1 Month
             </SelectItem>
-            <SelectItem className="rounded-lg" value="1W">
-              1 Week
+            <SelectItem className="rounded-lg" value="6M">
+              6 Months
+            </SelectItem>
+            <SelectItem className="rounded-lg" value="1Y">
+              1 Year
+            </SelectItem>
+            <SelectItem className="rounded-lg" value="5Y">
+              5 Years
+            </SelectItem>
+            <SelectItem className="rounded-lg" value="All">
+              All
             </SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[200px] aspect-auto">
+        <ChartContainer config={chartConfig} className="h-[450px] aspect-auto">
           <AreaChart
             accessibilityLayer
             data={filteredData}
@@ -207,7 +230,6 @@ export function PortfolioChart({
             {portfolioSymbols.map((symbol, index) => {
               const factor = index / (portfolioSymbols.length - 1); // Normalize index to [0, 1]
               const fillColor = interpolateHSL(color1, color2, factor);
-              console.log(fillColor);
 
               return (
                 <Area

@@ -82,6 +82,7 @@ export interface dcfResultsType {
 
 export interface PortfolioDBType {
   ticker: string;
+  currency: string;
   _avg: {
     purchasePrice: number | null;
   };
@@ -92,7 +93,6 @@ export interface PortfolioDBType {
 [];
 
 export interface PriceByDateType {
-  [date: string]: {
-    [symbol: string]: number;
-  };
+  date: string;
+  prices: { [symbol: string]: number };
 }
