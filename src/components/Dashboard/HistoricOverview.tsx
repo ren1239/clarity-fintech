@@ -84,7 +84,9 @@ export default async function HistoricOverview({
           ? convertCurrency(calculatedPrice, stockCurrency, "USD")
           : calculatedPrice;
 
-      dateEntry.prices[symbol] = convertedPrice || lastPrice;
+      dateEntry.prices[symbol] = Number(
+        (convertedPrice || lastPrice).toFixed()
+      );
       lastPrice = dateEntry.prices[symbol];
     });
   });

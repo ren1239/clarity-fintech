@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -26,10 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { moneyFormatter } from "../Calculations/Formatter";
+import { moneyFormatter, percentFormatter } from "../Calculations/Formatter";
 
 interface portfolioValueType {
   date: string;
+  [key: string]: number | string;
 }
 
 export function PortfolioChart({
@@ -70,6 +71,9 @@ export function PortfolioChart({
       case "1Y":
         startDate = subYears(now, 1);
         break;
+      case "3Y":
+        startDate = subYears(now, 3);
+        break;
       case "5Y":
         startDate = subYears(now, 5);
         break;
@@ -90,9 +94,11 @@ export function PortfolioChart({
     if (timeRange === "All") {
       return filteredData.filter((item, index) => index % 50 === 0);
     } else if (timeRange === "5Y") {
+      return filteredData.filter((item, index) => index % 30 === 0);
+    } else if (timeRange === "3Y") {
       return filteredData.filter((item, index) => index % 20 === 0);
     } else if (timeRange === "1Y") {
-      return filteredData.filter((item, index) => index % 5 === 0);
+      return filteredData.filter((item, index) => index % 10 === 0);
     } else {
       return filteredData;
     }
@@ -149,7 +155,7 @@ export function PortfolioChart({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>
             Total Portfolio Value -{" "}
@@ -181,6 +187,9 @@ export function PortfolioChart({
             <SelectItem className="rounded-lg" value="1Y">
               1 Year
             </SelectItem>
+            <SelectItem className="rounded-lg" value="3Y">
+              3 Year
+            </SelectItem>
             <SelectItem className="rounded-lg" value="5Y">
               5 Years
             </SelectItem>
@@ -190,8 +199,11 @@ export function PortfolioChart({
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[450px] aspect-auto">
+      <CardContent className="flex flex-col lg:flex-row gap-x-8 mt-4 gap-y-8">
+        <ChartContainer
+          config={chartConfig}
+          className=" w-full min-w-[250px] h-[150px] md:min-h-[500px]"
+        >
           <AreaChart
             accessibilityLayer
             data={filteredData}
@@ -222,6 +234,13 @@ export function PortfolioChart({
                 }
               }}
             />
+
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickCount={3}
+            />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
@@ -245,17 +264,89 @@ export function PortfolioChart({
             })}
           </AreaChart>
         </ChartContainer>
+        <PortfolioLegend filteredData={filteredData} />
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div>
-          </div>
+    </Card>
+  );
+}
+
+export function PortfolioLegend({
+  filteredData,
+}: {
+  filteredData: portfolioValueType[];
+}) {
+  // Use useMemo to ensure startData and endData update with filteredData
+  const startData = useMemo(() => filteredData[0], [filteredData]);
+  const endData = useMemo(
+    () => filteredData[filteredData.length - 1],
+    [filteredData]
+  );
+
+  let difference: { [key: string]: number } = {};
+  let percentageDifference: { [key: string]: number } = {};
+
+  // Calculate the cumulative total for startData and endData excluding the date key
+  const totalStart = Object.keys(startData)
+    .filter((key) => key !== "date")
+    .reduce((acc, key) => acc + Number(startData[key]), 0);
+
+  const totalEnd = Object.keys(endData)
+    .filter((key) => key !== "date")
+    .reduce((acc, key) => acc + Number(endData[key]), 0);
+
+  const totalDifference = totalEnd - totalStart;
+
+  // Calculate the cumulative percentage difference
+  const totalPercentageDifference =
+    totalStart !== 0 ? totalDifference / totalStart : 0;
+
+  Object.keys(endData)
+    .filter((key) => key !== "date")
+    .forEach((stock) => {
+      const startValue = Number(startData[stock]);
+      const endValue = Number(endData[stock]);
+
+      difference[stock] = endValue - startValue;
+
+      // Calculate percentage difference for individual stocks
+      percentageDifference[stock] =
+        startValue !== 0 ? (difference[stock] / startValue) * 100 : 0;
+    });
+
+  return (
+    <Card className="flex flex-col min-w-[250px] lg:h-[500px] justify-between">
+      <CardHeader className="mb-4">
+        <CardTitle>Company</CardTitle>
+        <CardDescription>value change</CardDescription>
+      </CardHeader>
+      <CardContent className=" overflow-y-scroll">
+        {Object.keys(endData)
+          .filter((key) => key !== "date")
+          .map((stock) => {
+            return (
+              <div className="flex justify-between text-sm" key={stock}>
+                <p className="font-semibold">{stock}</p>
+                <div></div>
+                <p
+                  className={`${
+                    difference[stock] >= 0 ? "bg-green-200" : "bg-red-200"
+                  } px-2 rounded-sm w-20 flex justify-center items-center text-center`}
+                >
+                  {moneyFormatter(Number(difference[stock]))}
+                </p>
+              </div>
+            );
+          })}
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm border-t ">
+        <div className="flex gap-2 font-semibold leading-none mt-4 text-xl">
+          Change:{" "}
+          <span className="text-sm italic font-light">
+            ({percentFormatter(totalPercentageDifference)})
+          </span>
+        </div>
+        <div className="leading-none font-bold text-primary text-right w-full text-2xl">
+          {moneyFormatter(totalDifference)}
         </div>
       </CardFooter>
     </Card>
