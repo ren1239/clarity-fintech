@@ -26,23 +26,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { moneyFormatter } from "../Calculations/Formatter";
 
 interface portfolioValueType {
   date: string;
 }
 
 export function PortfolioChart({
-  portfolioArray,
+  portfolioMarketData,
   portfolioSymbols,
+  totalPortfolioValue,
 }: {
-  portfolioArray: portfolioValueType[];
+  portfolioMarketData: portfolioValueType[];
   portfolioSymbols: string[];
+  totalPortfolioValue: number | null;
 }) {
-  const [timeRange, setTimeRange] = useState("1W");
+  const [timeRange, setTimeRange] = useState("1M");
 
   const historicalData = useMemo(
-    () => (portfolioArray ? portfolioArray.slice().reverse() : []),
-    [portfolioArray]
+    () => (portfolioMarketData ? portfolioMarketData.slice().reverse() : []),
+    [portfolioMarketData]
   );
 
   const filteredData: portfolioValueType[] = useMemo(() => {
@@ -70,9 +73,9 @@ export function PortfolioChart({
         break;
     }
     return historicalData.filter((item) => new Date(item.date) >= startDate);
-  }, [timeRange, portfolioArray]);
+  }, [timeRange, portfolioMarketData]);
 
-  if (!portfolioArray || !portfolioSymbols) {
+  if (!portfolioMarketData || !portfolioSymbols) {
     return <div>Loading...</div>;
   }
 
@@ -121,15 +124,16 @@ export function PortfolioChart({
   const color2 = "123 58% 79%"; // A slightly different shade of reddish-orange
   const color1 = "173 58% 40%"; // The original reddish-orange color
 
-  // Now you can call interpolateHSL with type safety
-  const resultColor = interpolateHSL(color1, color2, 0.5);
-  console.log(resultColor); // Outputs the interpolated color
-
   return (
     <Card>
       <CardHeader>
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Total Portfolio Value</CardTitle>
+          <CardTitle>
+            Total Portfolio Value -{" "}
+            {totalPortfolioValue !== null
+              ? moneyFormatter(totalPortfolioValue)
+              : "N/A"}
+          </CardTitle>
           <CardDescription className="">
             A detailed look across your portfolio
           </CardDescription>

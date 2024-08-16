@@ -79,3 +79,20 @@ export interface dcfResultsType {
   terminalYearFcf: number;
   terminalYearPvFcf: number;
 }
+
+export interface PortfolioDBType {
+  ticker: string;
+  _avg: {
+    purchasePrice: number | null;
+  };
+  _sum: {
+    quantity: number | null;
+  };
+}
+[];
+
+export interface PriceByDateType {
+  [date: string]: {
+    [symbol: string]: number;
+  };
+}

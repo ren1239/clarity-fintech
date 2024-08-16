@@ -95,7 +95,7 @@ export async function fetchAnalystEstimates(
   return fetchData<APIAnalystEstimatesType[]>(id, "analystestimates");
 }
 
-export async function fetchportfolioMarketPrice(
+export async function fetchPortfolioMarketPrice(
   portfolioSymbols: string[]
 ): Promise<APIPortfolioMarketPriceType[] | null> {
   if (!portfolioSymbols || portfolioSymbols.length === 0) {
