@@ -6,6 +6,7 @@ import {
   APIFinancialGrowthType,
   APIIncomeStatementType,
   APIMarketPriceType,
+  APIPortfolioMarketPriceType,
 } from "@/APItypes";
 
 export async function fetchData<T>(
@@ -92,4 +93,49 @@ export async function fetchAnalystEstimates(
   id: string
 ): Promise<APIAnalystEstimatesType[] | null> {
   return fetchData<APIAnalystEstimatesType[]>(id, "analystestimates");
+}
+
+export async function fetchPortfolioMarketPrice(
+  portfolioSymbols: string[]
+): Promise<APIPortfolioMarketPriceType[] | null> {
+  if (!portfolioSymbols || portfolioSymbols.length === 0) {
+    console.error("fetchData: 'id' is required but was not provided.");
+    return null;
+  }
+  try {
+    // Server Components require the absolute URL - unlike client components
+    const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const endpointURL = `${baseURL}/api/fetchstockdata/portfoliomarketprice?bulkSymbols=${portfolioSymbols.join(
+      ","
+    )}`;
+
+    const res = await fetch(endpointURL);
+    if (!res.ok) {
+      console.error(
+        `Network response was not okay for symbol: ${portfolioSymbols.join(
+          ","
+        )}, Status: ${res.status}`
+      );
+      return null;
+    }
+
+    //If there is a successful response from the Endpoint continue to parse the json
+
+    try {
+      const data = await res.json();
+      return data;
+    } catch (jsonError) {
+      console.error(
+        `Error parsing JSON response for symbol: ${portfolioSymbols.join(",")}`,
+        jsonError
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error(
+      `Error fetching data for symbol: ${portfolioSymbols.join(",")}`,
+      error
+    );
+    return null;
+  }
 }

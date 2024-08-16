@@ -63,7 +63,7 @@ export default async function CompoundCalculatorPage({
   return (
     <>
       <div className=" flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
-        <DecorativeBackground />
+        <DecorativeBackground rotation={90} translation={55} />
         <div className=" mx-auto w-full grow lg:flex px-6 xl:px-8 gap-x-4 space-y-4 lg:space-y-0">
           {/* Left Side Chart */}
           <div className="flex-1 ">
