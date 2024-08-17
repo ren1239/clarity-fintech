@@ -24,17 +24,21 @@ export default async function HistoricOverview({
   const user = await getUser();
 
   // Make a cache fetch request
-  const fetchMarketPriceWithCache = unstable_cache(
-    async (symbol: string) => {
-      return fetchMarketPrice(symbol);
-    },
-    [`marketPrice`], // Static cache key (This should be unique for each operation you cache)
-    { tags: ["market-data"], revalidate: 86400 } // Revalidate every 24 hours
+  const createFetchMarketPriceWithCache = (symbol: string) =>
+    unstable_cache(
+      async () => {
+        return fetchMarketPrice(symbol);
+      },
+      [`marketPrice:${symbol}`], // Static cache key array for each symbol
+      { tags: ["market-data"], revalidate: 86400 } // Revalidate every 24 hours
+    );
+
+  const marketPricePromises = portfolioSymbols.map((symbol) =>
+    createFetchMarketPriceWithCache(symbol)()
   );
 
-  const marketPrice = await Promise.all(
-    portfolioSymbols.map((symbol) => fetchMarketPriceWithCache(symbol))
-  )
+  const marketPrice = await Promise.all(marketPricePromises)
+
     .then((results) => {
       //Filter out the null values from the results
       const validResults = results.filter((result) => result !== null);
