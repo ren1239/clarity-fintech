@@ -1,8 +1,10 @@
 import React from "react";
+
+import { unstable_cache } from "next/cache";
+
 import { PortfolioChart } from "./PortfolioChart";
 import { PortfolioDBType, PriceByDateType } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { APIMarketPriceType } from "@/APItypes";
 import { fetchMarketPrice } from "@/lib/apiFetch";
 import { convertCurrency } from "../Calculations/Formatter";
 
@@ -20,13 +22,23 @@ export default async function HistoricOverview({
   // Get the user or bounce the unknown viewer
   const { getUser } = getKindeServerSession();
   const user = await getUser();
-  //
-  //
-  //
-  //Make a looping API call for all histroic data- this is for the chart
-  const marketPrice: APIMarketPriceType[] | null = await Promise.all(
-    portfolioSymbols.map((symbol) => fetchMarketPrice(symbol))
-  )
+
+  // Make a cache fetch request
+  const createFetchMarketPriceWithCache = (symbol: string) =>
+    unstable_cache(
+      async () => {
+        return fetchMarketPrice(symbol);
+      },
+      [`marketPrice:${symbol}`], // Static cache key array for each symbol
+      { tags: ["market-data"], revalidate: 86400 } // Revalidate every 24 hours
+    );
+
+  const marketPricePromises = portfolioSymbols.map((symbol) =>
+    createFetchMarketPriceWithCache(symbol)()
+  );
+
+  const marketPrice = await Promise.all(marketPricePromises)
+
     .then((results) => {
       //Filter out the null values from the results
       const validResults = results.filter((result) => result !== null);
