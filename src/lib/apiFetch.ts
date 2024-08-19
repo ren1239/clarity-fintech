@@ -10,10 +10,12 @@ import {
 } from "@/APItypes";
 
 export async function fetchData<T>(
-  id: string,
+  params: { id: string; purchaseDate?: string },
   endpoint: string
 ): Promise<T | null> {
   "use server";
+
+  const { id, purchaseDate } = params;
 
   // First check if there is an id
 
@@ -27,7 +29,11 @@ export async function fetchData<T>(
   try {
     // Server Components require the absolute URL - unlike client components
     const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const endpointURL = `${baseURL}/api/fetchstockdata/${endpoint}?symbol=${id}`;
+    let endpointURL = `${baseURL}/api/fetchstockdata/${endpoint}?symbol=${id}`;
+
+    if (purchaseDate) {
+      endpointURL += `&purchaseDate=${purchaseDate}`;
+    }
 
     const res = await fetch(endpointURL);
     if (!res.ok) {
@@ -56,43 +62,53 @@ export async function fetchData<T>(
 export async function fetchCompanyProfile(
   id: string
 ): Promise<APICompanyProfileType | null> {
-  return fetchData<APICompanyProfileType>(id, "companyprofile");
+  return fetchData<APICompanyProfileType>({ id }, "companyprofile");
 }
 
 export async function fetchFinancialGrowth(
   id: string
 ): Promise<APIFinancialGrowthType[] | null> {
-  return fetchData<APIFinancialGrowthType[]>(id, "financialgrowth");
+  return fetchData<APIFinancialGrowthType[]>({ id }, "financialgrowth");
 }
 
 export async function fetchMarketPrice(
   id: string
 ): Promise<APIMarketPriceType | null> {
-  return fetchData<APIMarketPriceType>(id, "marketprice");
+  return fetchData<APIMarketPriceType>({ id }, "marketprice");
 }
 
 export async function fetchCashflowStatement(
   id: string
 ): Promise<APICashflowStatementType[] | null> {
-  return fetchData<APICashflowStatementType[]>(id, "cashflowstatement");
+  return fetchData<APICashflowStatementType[]>({ id }, "cashflowstatement");
 }
 
 export async function fetchIncomeStatement(
   id: string
 ): Promise<APIIncomeStatementType[] | null> {
-  return fetchData<APIIncomeStatementType[]>(id, "incomestatement");
+  return fetchData<APIIncomeStatementType[]>({ id }, "incomestatement");
 }
 
 export async function fetchBalanceSheet(
   id: string
 ): Promise<APIBalanceSheetType[] | null> {
-  return fetchData<APIBalanceSheetType[]>(id, "balancesheet");
+  return fetchData<APIBalanceSheetType[]>({ id }, "balancesheet");
 }
 
 export async function fetchAnalystEstimates(
   id: string
 ): Promise<APIAnalystEstimatesType[] | null> {
-  return fetchData<APIAnalystEstimatesType[]>(id, "analystestimates");
+  return fetchData<APIAnalystEstimatesType[]>({ id }, "analystestimates");
+}
+
+export async function fetchMarketPriceFromDate(
+  id: string,
+  purchaseDate: string
+): Promise<APIMarketPriceType | null> {
+  return fetchData<APIMarketPriceType>(
+    { id, purchaseDate },
+    "market-price-from-date"
+  );
 }
 
 export async function fetchPortfolioMarketPrice(
