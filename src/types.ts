@@ -37,6 +37,18 @@ export interface SavingsData {
   id: string;
 }
 
+export interface PortfolioInputFormType {
+  ticker: string;
+  purchaseDate: Date;
+  purchasePrice: number;
+  quantity: number;
+  currency: string;
+  country: string;
+  sector?: string;
+  industry?: string;
+  exchange?: string;
+}
+
 export interface RetirementDataType {
   retirementAmount: number;
   rateOfReturn: number;
@@ -95,4 +107,13 @@ export interface PortfolioDBType {
 export interface PriceByDateType {
   date: string;
   prices: { [symbol: string]: number };
+}
+
+export interface PortfolioValueDataType {
+  totalValue: number;
+  breakdown: {
+    [ticker: string]: number;
+  };
+  date: string;
+  countryBreakdown: { [country: string]: { [ticker: string]: number } };
 }

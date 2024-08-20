@@ -7,6 +7,7 @@ import {
 } from "@/components/Calculations/Formatter";
 import HistoricOverview from "@/components/Dashboard/HistoricOverview";
 import PortfolioDateManage from "@/components/Dashboard/PortfolioDateManage";
+import PortfolioInputDialogue from "@/components/Dashboard/PortfolioInputDialogue";
 import PortfolioTable from "@/components/Dashboard/PortfolioTable";
 import { fetchPortfolioMarketPrice } from "@/lib/apiFetch";
 import { PortfolioDBType } from "@/types";
@@ -54,7 +55,7 @@ export default async function DashBoardPage() {
 
   return (
     <div className="w-full mx-auto flex flex-col items-center gap-y-4">
-      <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 gap-y-4">
+      <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 gap-y-4 ">
         {/* <HistoricOverview
           portfolioDbData={portfolioDbData}
           portfolioSymbols={portfolioSymbols}
@@ -66,6 +67,7 @@ export default async function DashBoardPage() {
           portfolioMarketPrice={portfolioMarketPrice}
         /> */}
         <PortfolioDateManage />
+        <PortfolioInputDialogue userId={user.id} />
       </div>
     </div>
   );
