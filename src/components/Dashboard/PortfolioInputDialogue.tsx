@@ -50,7 +50,7 @@ export default function PortfolioInputDialogue({ userId }: { userId: string }) {
           <DialogHeader>
             <DialogTitle>Add a Stock to your Portfolio</DialogTitle>
             <DialogDescription>
-              Record your latest stock purchase and submit when you're done
+              Record your latest stock purchase and submit when you are done
             </DialogDescription>
           </DialogHeader>
 
