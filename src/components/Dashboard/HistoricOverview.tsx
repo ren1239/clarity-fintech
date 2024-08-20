@@ -1,7 +1,5 @@
 import React from "react";
-
 import { unstable_cache } from "next/cache";
-
 import { PortfolioChart } from "./PortfolioChart";
 import { PortfolioDBType, PriceByDateType } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
@@ -9,6 +7,16 @@ import { fetchMarketPrice } from "@/lib/apiFetch";
 import { convertCurrency } from "../Calculations/Formatter";
 
 export const revalidate = 86400; // Revalidate data every 24 hours
+
+// Make a cache fetch request
+const createFetchMarketPriceWithCache = (symbol: string) =>
+  unstable_cache(
+    async () => {
+      return fetchMarketPrice(symbol);
+    },
+    [`marketPrice:${symbol}`], // Static cache key array for each symbol
+    { tags: ["market-data"], revalidate: 86400 } // Revalidate every 24 hours
+  );
 
 export default async function HistoricOverview({
   portfolioDbData,
@@ -22,16 +30,6 @@ export default async function HistoricOverview({
   // Get the user or bounce the unknown viewer
   const { getUser } = getKindeServerSession();
   const user = await getUser();
-
-  // Make a cache fetch request
-  const createFetchMarketPriceWithCache = (symbol: string) =>
-    unstable_cache(
-      async () => {
-        return fetchMarketPrice(symbol);
-      },
-      [`marketPrice:${symbol}`], // Static cache key array for each symbol
-      { tags: ["market-data"], revalidate: 86400 } // Revalidate every 24 hours
-    );
 
   const marketPricePromises = portfolioSymbols.map((symbol) =>
     createFetchMarketPriceWithCache(symbol)()

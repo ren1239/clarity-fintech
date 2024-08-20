@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import prisma from "./lib/db";
 import { Savings } from "@prisma/client";
 
-type FormData = {
+type SavingFormDataType = {
   userId: string;
   principal: number;
   rateOfReturn: number;
@@ -15,7 +15,7 @@ type FormData = {
   id: string;
 };
 
-export async function createSavingsListing(formData: FormData) {
+export async function createSavingsListing(formData: SavingFormDataType) {
   const {
     userId,
     principal,
@@ -87,5 +87,72 @@ export async function createSavingsListing(formData: FormData) {
     throw new Error(
       "An error occurred while processing your request. Please try again later."
     );
+  }
+}
+
+type PortfolioFormDataType = {
+  ticker: string;
+  purchaseDate: Date;
+  purchasePrice: number;
+  quantity: number;
+  currency: string;
+  country: string;
+  sector?: string;
+  industry?: string;
+  exchange?: string;
+  userId: string;
+};
+
+export async function createPortfolioInput(formData: PortfolioFormDataType) {
+  const {
+    country,
+    currency,
+    purchaseDate,
+    purchasePrice,
+    quantity,
+    ticker,
+    userId,
+    exchange,
+    sector,
+    industry,
+  } = formData;
+
+  if (
+    userId === undefined ||
+    ticker === undefined ||
+    quantity === undefined ||
+    purchasePrice === undefined ||
+    purchaseDate === undefined ||
+    currency === undefined ||
+    country === undefined
+  ) {
+    throw new Error("All fields are required");
+  }
+
+  try {
+    if (userId) {
+      await prisma.stock.create({
+        data: {
+          userId: userId,
+          ticker: ticker,
+          purchaseDate: purchaseDate,
+          purchasePrice: purchasePrice,
+          quantity: quantity,
+          currency: currency,
+          country: country,
+          exchange: exchange,
+          sector: sector,
+          industry: industry,
+        },
+      });
+
+      // Ensure the path is correct and revalidation is supported
+      revalidatePath(`/dashboard/${userId}`);
+
+      return { success: true };
+    }
+  } catch (error) {
+    console.error("Error creating portfolio input:", error);
+    throw new Error("Failed to create portfolio input");
   }
 }

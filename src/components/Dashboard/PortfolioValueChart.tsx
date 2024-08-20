@@ -27,6 +27,7 @@ import {
 } from "../ui/select";
 import { moneyFormatter } from "../Calculations/Formatter";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { PortfolioValueDataType } from "@/types";
 
 const chartConfig = {
   totalValue: {
@@ -38,14 +39,6 @@ const chartConfig = {
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
-
-interface PortfolioValueDataType {
-  totalValue: number;
-  breakdown: {
-    [ticker: string]: number;
-  };
-  date: string;
-}
 
 export function PortfolioValueChart({
   portfolioValueData,
@@ -96,18 +89,29 @@ export function PortfolioValueChart({
       return itemDate >= startDate;
     });
 
+    const lastIndex = filteredData.length - 1;
+
     // Further reduce the data points for "5Y" and "All" time ranges
     if (timeRange === "All") {
-      return filteredData.filter((item, index) => index % 50 === 0);
+      return filteredData.filter(
+        (item, index) => index % 50 === 0 || index === lastIndex
+      );
     } else if (timeRange === "5Y") {
-      return filteredData.filter((item, index) => index % 30 === 0);
+      return filteredData.filter(
+        (item, index) => index % 30 === 0 || index === lastIndex
+      );
     } else if (timeRange === "3Y") {
-      return filteredData.filter((item, index) => index % 20 === 0);
+      return filteredData.filter(
+        (item, index) => index % 20 === 0 || index === lastIndex
+      );
     } else if (timeRange === "1Y") {
-      return filteredData.filter((item, index) => index % 10 === 0);
+      return filteredData.filter(
+        (item, index) => index % 10 === 0 || index === lastIndex
+      );
     } else {
       return filteredData;
     }
+    // return filteredData;
   }, [timeRange, historicalData]);
 
   const totalPortfolioValue = filteredData[filteredData.length - 1].totalValue;
@@ -122,7 +126,15 @@ export function PortfolioValueChart({
     return acc;
   }, {} as ChartConfig);
 
-  console.log(chartConfigMulti);
+  const totalCNPortfolioValue =
+    Object.values(
+      filteredData[filteredData.length - 1].countryBreakdown.CN
+    ).reduce((acc, curr) => acc + curr, 0) || 0;
+
+  const totalUSPortfolioValue =
+    Object.values(
+      filteredData[filteredData.length - 1].countryBreakdown.US
+    ).reduce((acc, curr) => acc + curr, 0) || 0;
 
   return (
     <Card>
@@ -135,7 +147,23 @@ export function PortfolioValueChart({
                     ? moneyFormatter(totalPortfolioValue)
                     : "N/A"
                 }`
-              : "Portfolio Breakdown"}
+              : displayMode === "breakdown"
+              ? `Total Portfolio Value - ${
+                  totalPortfolioValue !== null
+                    ? moneyFormatter(totalPortfolioValue)
+                    : "N/A"
+                }`
+              : displayMode === "CN"
+              ? `Total Portfolio Value - ${
+                  totalPortfolioValue !== null
+                    ? moneyFormatter(totalCNPortfolioValue)
+                    : "N/A"
+                }`
+              : `Total Portfolio Value - ${
+                  totalPortfolioValue !== null
+                    ? moneyFormatter(totalUSPortfolioValue)
+                    : "N/A"
+                }`}
           </CardTitle>
           <CardDescription className="">
             A detailed look across your portfolio
@@ -176,7 +204,7 @@ export function PortfolioValueChart({
       <CardContent>
         <ChartContainer
           config={displayMode === "totalValue" ? chartConfig : chartConfigMulti}
-          className="w-full min-w-[250px] h-[150px] md:min-h-[500px]"
+          className="w-full min-w-[250px] h-[350px] md:min-h-[500px] aspect-auto"
         >
           <AreaChart
             accessibilityLayer
@@ -192,6 +220,8 @@ export function PortfolioValueChart({
               axisLine={false}
               tickMargin={8}
               tickCount={3}
+              // domain={[0, (dataMax: number) => Math.ceil(dataMax * 1.3)]} // Adds a 30% buffer to the top
+              padding={{ top: 40 }}
             />
             <XAxis
               dataKey="date"
@@ -225,8 +255,10 @@ export function PortfolioValueChart({
                 fillOpacity={0.4}
                 stroke="var(--color-totalValue)"
               />
-            ) : (
-              Object.keys(filteredData[0].breakdown).map((ticker) => (
+            ) : displayMode === "breakdown" ? (
+              Object.keys(
+                portfolioValueData[portfolioValueData.length - 1].breakdown
+              ).map((ticker) => (
                 <Area
                   key={ticker}
                   dataKey={(data) => data.breakdown[ticker]}
@@ -235,6 +267,38 @@ export function PortfolioValueChart({
                   stroke="hsl(var(--chart-4))"
                   fill="hsl(var(--chart-4))"
                   stackId="a"
+                />
+              ))
+            ) : displayMode === "CN" ? (
+              Object.keys(
+                portfolioValueData[portfolioValueData.length - 1]
+                  .countryBreakdown.CN
+              ).map((ticker) => (
+                <Area
+                  key={ticker}
+                  dataKey={(data) => data.breakdown[ticker]}
+                  name={ticker}
+                  fillOpacity={0.2}
+                  stroke="hsl(var(--chart-4))"
+                  fill="hsl(var(--chart-4))"
+                  stackId="a"
+                  type={"natural"}
+                />
+              ))
+            ) : (
+              Object.keys(
+                portfolioValueData[portfolioValueData.length - 1]
+                  .countryBreakdown.US
+              ).map((ticker) => (
+                <Area
+                  key={ticker}
+                  dataKey={(data) => data.breakdown[ticker]}
+                  name={ticker}
+                  fillOpacity={0.2}
+                  stroke="hsl(var(--chart-5))"
+                  fill="hsl(var(--chart-5))"
+                  stackId="a"
+                  type={"natural"}
                 />
               ))
             )}
@@ -250,6 +314,8 @@ export function PortfolioValueChart({
         >
           <ToggleGroupItem value="totalValue">Total Value</ToggleGroupItem>
           <ToggleGroupItem value="breakdown">Breakdown</ToggleGroupItem>
+          <ToggleGroupItem value="CN">CN</ToggleGroupItem>
+          <ToggleGroupItem value="US">US</ToggleGroupItem>
         </ToggleGroup>
       </CardFooter>
     </Card>
