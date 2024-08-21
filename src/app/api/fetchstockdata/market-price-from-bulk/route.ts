@@ -1,6 +1,6 @@
 //Create a generic get function
 
-import { APIPortfolioMarketPriceType } from "@/APItypes";
+import { APIPortfolioBatchPriceType } from "@/APItypes";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     }
 
     //handle the response
-    const portfolioMarketPrice: APIPortfolioMarketPriceType[] =
+    const portfolioMarketPrice: APIPortfolioBatchPriceType[] =
       await response.json();
     console.log("success portfolio market price");
     return NextResponse.json(portfolioMarketPrice, { status: 200 });
