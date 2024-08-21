@@ -6,21 +6,23 @@ import {
   APIFinancialGrowthType,
   APIIncomeStatementType,
   APIMarketPriceType,
-  APIPortfolioMarketPriceType,
+  APIPortfolioBatchPriceType,
 } from "@/APItypes";
 
 export async function fetchData<T>(
-  params: { id: string; purchaseDate?: string },
+  params: { id: string; purchaseDate?: string; symbols?: string },
   endpoint: string
 ): Promise<T | null> {
   "use server";
 
-  const { id, purchaseDate } = params;
+  const { id, purchaseDate, symbols } = params;
 
   // First check if there is an id
 
-  if (!id) {
-    console.error("fetchData: 'id' is required but was not provided.");
+  if (!id && !symbols) {
+    console.error(
+      "fetchData: 'id' or 'symbols' is required but was not provided."
+    );
     return null;
   }
 
@@ -29,7 +31,13 @@ export async function fetchData<T>(
   try {
     // Server Components require the absolute URL - unlike client components
     const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    let endpointURL = `${baseURL}/api/fetchstockdata/${endpoint}?symbol=${id}`;
+    let endpointURL = `${baseURL}/api/fetchstockdata/${endpoint}`;
+
+    if (id) {
+      endpointURL += `?symbol=${id}`;
+    } else if (symbols) {
+      endpointURL += `?symbols=${symbols}`;
+    }
 
     if (purchaseDate) {
       endpointURL += `&purchaseDate=${purchaseDate}`;
@@ -49,11 +57,14 @@ export async function fetchData<T>(
       const data: T = await res.json();
       return data;
     } catch (jsonError) {
-      console.error(`Error parsing JSON response for symbol: ${id}`, jsonError);
+      console.error(
+        `Error parsing JSON response for symbol: ${id || symbols}`,
+        jsonError
+      );
       return null;
     }
   } catch (error) {
-    console.error(`Error fetching data for symbol: ${id}`, error);
+    console.error(`Error fetching data for symbol: ${id || symbols}`, error);
     return null;
   }
 }
@@ -111,47 +122,12 @@ export async function fetchMarketPriceFromDate(
   );
 }
 
-export async function fetchPortfolioMarketPrice(
-  portfolioSymbols: string[]
-): Promise<APIPortfolioMarketPriceType[] | null> {
-  if (!portfolioSymbols || portfolioSymbols.length === 0) {
-    console.error("fetchData: 'id' is required but was not provided.");
-    return null;
-  }
-  try {
-    // Server Components require the absolute URL - unlike client components
-    const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const endpointURL = `${baseURL}/api/fetchstockdata/portfoliomarketprice?bulkSymbols=${portfolioSymbols.join(
-      ","
-    )}`;
-
-    const res = await fetch(endpointURL);
-    if (!res.ok) {
-      console.error(
-        `Network response was not okay for symbol: ${portfolioSymbols.join(
-          ","
-        )}, Status: ${res.status}`
-      );
-      return null;
-    }
-
-    //If there is a successful response from the Endpoint continue to parse the json
-
-    try {
-      const data = await res.json();
-      return data;
-    } catch (jsonError) {
-      console.error(
-        `Error parsing JSON response for symbol: ${portfolioSymbols.join(",")}`,
-        jsonError
-      );
-      return null;
-    }
-  } catch (error) {
-    console.error(
-      `Error fetching data for symbol: ${portfolioSymbols.join(",")}`,
-      error
-    );
-    return null;
-  }
+export async function fetchMarketPriceFromBulk(
+  id: string[]
+): Promise<APIPortfolioBatchPriceType[] | null> {
+  const symbols = id.join(",");
+  return fetchData<APIPortfolioBatchPriceType[]>(
+    { id: "", symbols },
+    "market-price-from-bulk"
+  );
 }
