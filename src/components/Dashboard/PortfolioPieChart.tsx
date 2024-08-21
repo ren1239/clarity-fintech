@@ -1,6 +1,7 @@
 // PortfolioPieChart.tsx
 "use client";
 
+import { format } from "date-fns";
 import { PortfolioValueDataType } from "@/types";
 import { Label, Pie, PieChart } from "recharts";
 import {
@@ -72,6 +73,8 @@ export function CountryPieChart({
     filter
   );
 
+  const today = format(new Date(), "EEE, d MMM, yyyy");
+
   return (
     <Card className="flex flex-col  w-full">
       <CardHeader className="items-center pb-0">
@@ -133,7 +136,7 @@ export function CountryPieChart({
           Showing top holdings
         </div>
         <div className="leading-none text-muted-foreground">
-          Data from the last 6 months
+          Data as of {today}
         </div>
       </CardFooter>
     </Card>
@@ -159,7 +162,7 @@ export function processData(
 
   // Assign the fill colors after sorting
   topHoldings.forEach((item, index) => {
-    item.fill = `hsl(var(--chart-${index % 5}))`; // Cycle through color variables
+    item.fill = `hsl(var(--chart-${(index % 5) + 1}))`; // Cycle through color variables
   });
 
   const totalValue = topHoldings.reduce((acc, curr) => acc + curr.value, 0);

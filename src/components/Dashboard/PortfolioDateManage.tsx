@@ -87,7 +87,7 @@ async function fetchUserPortfolio(
   try {
     const portfolio = await prisma.stock.findMany({
       where: { userId },
-      orderBy: { purchaseDate: "asc" },
+      orderBy: { ticker: "asc" },
     });
 
     // Map throught data to format the date into a string

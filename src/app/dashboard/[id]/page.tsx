@@ -1,5 +1,5 @@
 "use server";
-import { APIPortfolioMarketPriceType } from "@/APItypes";
+import { APIPortfolioBatchPriceType } from "@/APItypes";
 import prisma from "@/app/lib/db";
 import {
   convertCurrency,
@@ -9,7 +9,7 @@ import HistoricOverview from "@/components/Dashboard/HistoricOverview";
 import PortfolioDateManage from "@/components/Dashboard/PortfolioDateManage";
 import PortfolioInputDialogue from "@/components/Dashboard/PortfolioInputDialogue";
 import PortfolioTable from "@/components/Dashboard/PortfolioTable";
-import { fetchPortfolioMarketPrice } from "@/lib/apiFetch";
+import { fetchMarketPriceFromBulk } from "@/lib/apiFetch";
 import { PortfolioDBType } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
@@ -37,9 +37,7 @@ export default async function DashBoardPage() {
 
   // Fetch market prices
   const portfolioSymbols = portfolioDbData.map((dataEntry) => dataEntry.ticker);
-  const portfolioMarketPrice = await fetchPortfolioMarketPrice(
-    portfolioSymbols
-  );
+  const portfolioMarketPrice = await fetchMarketPriceFromBulk(portfolioSymbols);
   if (!portfolioMarketPrice) {
     return "Unable to fetch market prices.";
   }
@@ -61,13 +59,14 @@ export default async function DashBoardPage() {
           portfolioSymbols={portfolioSymbols}
           totalPortfolioValue={totalPortfolioValue}
         /> */}
-        {/* <PortfolioTable
+
+        <PortfolioDateManage />
+        <PortfolioInputDialogue userId={user.id} />
+        <PortfolioTable
           username={username}
           portfolioDbData={portfolioDbData}
           portfolioMarketPrice={portfolioMarketPrice}
-        /> */}
-        <PortfolioDateManage />
-        <PortfolioInputDialogue userId={user.id} />
+        />
       </div>
     </div>
   );
@@ -82,6 +81,7 @@ async function fetchPortfolioDate(userId: string | undefined) {
       where: { userId },
       _sum: { quantity: true },
       _avg: { purchasePrice: true },
+      orderBy: { ticker: "asc" },
     });
   } catch (error) {
     console.error("Error fetching portfolio data", error);
@@ -93,7 +93,7 @@ async function fetchPortfolioDate(userId: string | undefined) {
 
 function calculateTotalPortfolioValue(
   portfolioDbData: PortfolioDBType[],
-  portfolioMarketPrice: APIPortfolioMarketPriceType[]
+  portfolioMarketPrice: APIPortfolioBatchPriceType[]
 ): number | null {
   try {
     if (portfolioDbData.length === 0) return null;

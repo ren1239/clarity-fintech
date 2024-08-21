@@ -1,4 +1,4 @@
-import { APIPortfolioMarketPriceType } from "@/APItypes";
+import { APIPortfolioBatchPriceType } from "@/APItypes";
 import { PortfolioDBType } from "@/types";
 import { convertCurrency, moneyFormatter } from "../Calculations/Formatter";
 import {
@@ -24,21 +24,21 @@ export default function PortfolioTable({
   username,
 }: {
   portfolioDbData: PortfolioDBType[];
-  portfolioMarketPrice: APIPortfolioMarketPriceType[];
+  portfolioMarketPrice: APIPortfolioBatchPriceType[];
   username: string;
 }) {
   // Constants
   const BASE_CURRENCY = "USD";
 
   return (
-    <Card className="w-full h-[400px]">
-      <CardHeader>
+    <Card className="w-full h-[400px] overflow-y-auto mb-10">
+      <CardHeader className="mb-4 border-b">
         <CardTitle>Welcome Back {username}!</CardTitle>
         <CardDescription>
           This table represents your current portfolio holdings
         </CardDescription>
       </CardHeader>
-      <CardContent className="h-[300px] overflow-y-auto">
+      <CardContent className="h-[300px] ">
         <Table>
           <TableHeader>
             <TableRow>

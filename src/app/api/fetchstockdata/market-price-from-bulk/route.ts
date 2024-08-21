@@ -1,11 +1,11 @@
 //Create a generic get function
 
-import { APIPortfolioMarketPriceType } from "@/APItypes";
+import { APIPortfolioBatchPriceType } from "@/APItypes";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const symbols = searchParams.get("bulkSymbols");
+  const symbols = searchParams.get("symbols");
   if (!symbols) {
     return new Response("No symbols provided", { status: 400 });
   }
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     }
 
     //handle the response
-    const portfolioMarketPrice: APIPortfolioMarketPriceType[] =
+    const portfolioMarketPrice: APIPortfolioBatchPriceType[] =
       await response.json();
     console.log("success portfolio market price");
     return NextResponse.json(portfolioMarketPrice, { status: 200 });

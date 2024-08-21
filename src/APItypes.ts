@@ -117,7 +117,7 @@ export interface MarketPriceType {
   changeOverTime: number;
 }
 
-export interface APIPortfolioMarketPriceType {
+export interface APIPortfolioBatchPriceType {
   symbol: string;
   name: string;
   price: number;
