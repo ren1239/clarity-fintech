@@ -159,10 +159,10 @@ export function PortfolioInputForm({
   function onSubmit(values: z.infer<typeof FormSchema>) {
     setLoading(true);
 
-    console.log(loading);
-    // Example of handling 'guest' users or any other condition
+    // Handle 'guest' users or any other condition
     if (values.userId === "guest") {
       console.warn("Guest users cannot submit the form");
+      setLoading(false);
       return;
     }
 
@@ -175,17 +175,19 @@ export function PortfolioInputForm({
     createPortfolioInput(values)
       .then((response) => {
         console.log("Form submitted successfully", response);
-        setLoading(false);
-        closeDialog(); // Close the dialog
 
-        // Redirect to the dashboard after successful submission
-        router.push(`/dashboard/${userId}`);
-        console.log(loading);
-        // Handle success, like showing a notification or redirecting
+        // Navigate to the dashboard immediately to trigger the loading page
+        router.replace(`/dashboard/${userId}`);
+
+        // Reset the loading state after a slight delay
+        setTimeout(() => {
+          setLoading(false);
+          closeDialog();
+        }, 3000); // Adjust this delay as needed
       })
       .catch((error) => {
         console.error("Failed to submit form", error);
-        // Handle error, like showing an error message
+        setLoading(false);
       });
   }
 
@@ -535,10 +537,10 @@ export function StockInput({
           )}
 
           {suggestions.length > 0 && (
-            <ul className=" text-left mt-2 sm:max-w-[200px] ">
+            <ul className=" text-left mt-2  ">
               {suggestions.slice(0, 5).map((suggestion, index) => (
-                <Button
-                  variant={"ghost"}
+                <Link
+                  href={""}
                   onClick={() => handleClick(suggestion)}
                   key={index}
                   className=""
@@ -554,7 +556,7 @@ export function StockInput({
                       </span>
                     </div>
                   </li>
-                </Button>
+                </Link>
               ))}
             </ul>
           )}

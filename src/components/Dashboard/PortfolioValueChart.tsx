@@ -129,12 +129,12 @@ export function PortfolioValueChart({
 
   const totalCNPortfolioValue =
     Object.values(
-      filteredData[filteredData.length - 1].countryBreakdown.CN
+      filteredData[filteredData.length - 1].countryBreakdown?.CN ?? {}
     ).reduce((acc, curr) => acc + curr, 0) || 0;
 
   const totalUSPortfolioValue =
     Object.values(
-      filteredData[filteredData.length - 1].countryBreakdown.US
+      filteredData[filteredData.length - 1].countryBreakdown?.US ?? {}
     ).reduce((acc, curr) => acc + curr, 0) || 0;
 
   return (
@@ -277,7 +277,7 @@ export function PortfolioValueChart({
               ) : displayMode === "CN" ? (
                 Object.keys(
                   portfolioValueData[portfolioValueData.length - 1]
-                    .countryBreakdown.CN
+                    .countryBreakdown?.CN ?? {}
                 ).map((ticker) => (
                   <Area
                     key={ticker}
@@ -293,7 +293,7 @@ export function PortfolioValueChart({
               ) : (
                 Object.keys(
                   portfolioValueData[portfolioValueData.length - 1]
-                    .countryBreakdown.US
+                    .countryBreakdown?.US ?? {}
                 ).map((ticker) => (
                   <Area
                     key={ticker}

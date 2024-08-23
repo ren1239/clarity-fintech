@@ -39,13 +39,13 @@ export function PortfolioPieChart({
   return (
     <div className="flex w-full gap-4 flex-col md:flex-row">
       <CountryPieChart
-        countryData={latestPortfolioData.countryBreakdown.CN}
+        countryData={latestPortfolioData.countryBreakdown?.CN ?? {}}
         countryCode="CN"
         title="China Holdings"
         filter={5}
       />
       <CountryPieChart
-        countryData={latestPortfolioData.countryBreakdown.US}
+        countryData={latestPortfolioData.countryBreakdown?.US ?? {}}
         countryCode="US"
         title="US Holdings"
         filter={5}
@@ -74,6 +74,18 @@ export function CountryPieChart({
   );
 
   const today = format(new Date(), "EEE, d MMM, yyyy");
+
+  // Check if there's no data to display
+  if (topHoldings.length === 0) {
+    return (
+      <Card className="flex flex-col  w-full">
+        <CardHeader className="items-center pb-0">
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>No Data Available</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex flex-col  w-full">
