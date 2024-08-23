@@ -117,3 +117,10 @@ export interface PortfolioValueDataType {
   date: string;
   countryBreakdown: { [country: string]: { [ticker: string]: number } };
 }
+
+export interface StockNameType {
+  symbol: string;
+  name: string;
+  stockExchange: string;
+  exchangeShortName: string;
+}

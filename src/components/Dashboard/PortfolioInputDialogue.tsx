@@ -22,7 +22,7 @@ import { Button } from "../ui/button";
 
 import { format, subDays } from "date-fns";
 import { createPortfolioInput } from "@/app/actions";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Spinner from "../Spinner";
 import { useRouter } from "next/navigation";
 import {
@@ -33,6 +33,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import Link from "next/link";
+import { StockNameType } from "@/types";
+import debounce from "lodash.debounce";
+import { fetchCompanyProfile } from "@/lib/apiFetch";
+import { APICompanyProfileType } from "@/APItypes";
 
 export default function PortfolioInputDialogue({ userId }: { userId: string }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -85,10 +91,37 @@ export function PortfolioInputForm({
   userId: string;
   closeDialog: () => void;
 }) {
+  const [symbol, setSymbol] = useState<string>("");
+  const [companyProfile, setCompanyProfile] =
+    useState<APICompanyProfileType | null>(null);
+
   //Set state for loading
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!symbol) return;
+
+    const fetchProfile = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `/api/fetchstockdata/companyprofile?symbol=${symbol}`
+        );
+        if (!response.ok) {
+          throw new Error("Company profile not found");
+        }
+        const data: APICompanyProfileType = await response.json();
+        setCompanyProfile(data);
+      } catch (error) {
+        console.error("Error fetching company profile", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [symbol]);
 
   // Call the use form hook and set default values, the solver allows type safety to persist
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -107,9 +140,25 @@ export function PortfolioInputForm({
     },
   });
 
+  const { setValue } = form;
+
+  // Update the form's ticker value whenever the symbol changes
+  useEffect(() => {
+    setValue("ticker", symbol);
+    if (companyProfile) {
+      console.log("i am updating this data for company profile");
+      setValue("currency", companyProfile.currency || "");
+      setValue("country", companyProfile.country || "");
+      setValue("sector", companyProfile.sector || "");
+      setValue("industry", companyProfile.industry || "");
+      setValue("exchange", companyProfile.exchange || "");
+    }
+  }, [symbol, companyProfile, setValue]);
+
   //Create the submit form button. Update the state with a callback function.
   function onSubmit(values: z.infer<typeof FormSchema>) {
     setLoading(true);
+
     console.log(loading);
     // Example of handling 'guest' users or any other condition
     if (values.userId === "guest") {
@@ -121,8 +170,6 @@ export function PortfolioInputForm({
     if (typeof values.purchaseDate === "string") {
       values.purchaseDate = new Date(values.purchaseDate);
     }
-
-    console.log("i am value", values);
 
     // Make the API call with error handling
     createPortfolioInput(values)
@@ -193,32 +240,8 @@ export function PortfolioInputForm({
 
   return (
     <Form {...form}>
+      <StockInput symbol={symbol} setSymbol={setSymbol} />
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-3">
-        {/* Ticker Symbol */}
-        <FormField
-          control={form.control}
-          name="ticker"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                <FormLabel>Stock Ticker</FormLabel>
-                <FormDescription className="text-xs">
-                  Input ticker symbol
-                </FormDescription>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="text"
-                    value={field.value}
-                    onChange={handleInputChange(field)}
-                  />
-                </FormControl>
-              </FormLabel>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Purchase Date  */}
         <FormField
           control={form.control}
@@ -319,7 +342,7 @@ export function PortfolioInputForm({
         {/* Inputs which will later be removed and taken directly from API */}
 
         {/* Currency   */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="currency"
           render={({ field }) => (
@@ -341,10 +364,10 @@ export function PortfolioInputForm({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         {/* Country   */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="country"
           render={({ field }) => (
@@ -366,7 +389,7 @@ export function PortfolioInputForm({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         <div>
           <Button className="w-full pt-2" type="submit" disabled={loading}>
             {loading ? (
@@ -382,4 +405,188 @@ export function PortfolioInputForm({
       </form>
     </Form>
   );
+}
+
+export function StockInput({
+  symbol,
+  setSymbol,
+}: {
+  symbol: string;
+  setSymbol: React.Dispatch<React.SetStateAction<string>>;
+}) {
+  const [query, setQuery] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<StockNameType[]>([]);
+  const [error, setError] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  //Create a useCallback hook to memoize the function, ensuring the re-render does notn happend
+  //if debounce or abortController reserts
+
+  const fetchSuggestions = useCallback(
+    debounce(async (searchTerm: string) => {
+      if (searchTerm.length === 0) {
+        setSuggestions([]);
+        return;
+      }
+
+      //Check if the abort controller is current
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      //Create a new abortController
+      abortControllerRef.current = new AbortController();
+
+      try {
+        const response = await fetch(`/api/search?q=${searchTerm}`, {
+          signal: abortControllerRef.current.signal, //signal used to prevent request
+        });
+
+        //Return an error if no network response
+        if (!response.ok) {
+          setError(true);
+          //Try to extract the JSON error from response
+          const errorData = await response.json();
+          console.error("Error", errorData.message || errorData.error);
+          return;
+        }
+
+        //Reset the error state if response is OK
+        setError(false);
+
+        //Filter logic for data
+
+        const data: StockNameType[] = await response.json();
+        const filteredSuggestions = data.filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        if (filteredSuggestions.length === 0) {
+          setError(true);
+        }
+        setSuggestions(filteredSuggestions);
+      } catch (error: any) {
+        console.error("Error fetching data", error.message);
+        setError(true);
+      }
+    }, 300),
+    []
+  );
+
+  // Call a useEffect to fetch each time the query changes
+  useEffect(() => {
+    fetchSuggestions(query);
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, [query, fetchSuggestions]);
+
+  const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
+
+  console.log("symbol clicked", symbol);
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleClick = (suggestion: StockNameType) => {
+    setSymbol(suggestion.symbol);
+    closeDialog();
+  };
+
+  return (
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <Button
+          className={` text-xs px-2
+                    md:h-9  md:px-3 md:text-sm`}
+          variant={symbol === "" ? "outline" : "secondary"}
+        >
+          {symbol === "" ? "Search Stock" : symbol}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-[calc(100vw-2.5rem)] sm:max-w-[425px] rounded-lg -translate-y-full trans sm:-translate-y-1/2 ">
+        <DialogHeader>
+          <DialogTitle>Search</DialogTitle>
+          <DialogDescription>
+            Enter the company name or stock ticker
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4 px-4">
+          <Input
+            id="stock"
+            type="text"
+            value={query}
+            onChange={inputChangeHandler}
+            placeholder="aapl"
+          />
+          {error && (
+            <div className="text-red-500 text-xs">
+              Error finding stock. Please try again.
+            </div>
+          )}
+
+          {suggestions.length > 0 && (
+            <ul className=" text-left mt-2 sm:max-w-[200px] ">
+              {suggestions.slice(0, 5).map((suggestion, index) => (
+                <Button
+                  variant={"ghost"}
+                  onClick={() => handleClick(suggestion)}
+                  key={index}
+                  className=""
+                >
+                  <li className="px-2 pt-1 hover:bg-neutral-100 rounded-md">
+                    <div className="flex flex-col text-left">
+                      <div className=" line-clamp-1">
+                        <strong>{suggestion.symbol}</strong> - {suggestion.name}
+                      </div>
+                      <span className="text-xs line-clamp-1 font-light text-muted-foreground">
+                        Exchange: {suggestion.stockExchange} (
+                        {suggestion.exchangeShortName})
+                      </span>
+                    </div>
+                  </li>
+                </Button>
+              ))}
+            </ul>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+{
+  /* Ticker Symbol
+        <FormField
+          control={form.control}
+          name="ticker"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                <FormLabel>Stock Ticker</FormLabel>
+                <FormDescription className="text-xs">
+                  Input ticker symbol
+                </FormDescription>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="text"
+                    value={field.value}
+                    onChange={handleInputChange(field)}
+                  />
+                </FormControl>
+              </FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */
 }
