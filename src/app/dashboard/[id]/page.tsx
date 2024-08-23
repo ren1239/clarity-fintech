@@ -1,17 +1,16 @@
 "use server";
 import { APIPortfolioBatchPriceType } from "@/APItypes";
 import prisma from "@/app/lib/db";
-import {
-  convertCurrency,
-  moneyFormatter,
-} from "@/components/Calculations/Formatter";
-import HistoricOverview from "@/components/Dashboard/HistoricOverview";
+import { convertCurrency } from "@/components/Calculations/Formatter";
 import PortfolioDateManage from "@/components/Dashboard/PortfolioDateManage";
 import PortfolioInputDialogue from "@/components/Dashboard/PortfolioInputDialogue";
 import PortfolioTable from "@/components/Dashboard/PortfolioTable";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchMarketPriceFromBulk } from "@/lib/apiFetch";
 import { PortfolioDBType } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { Ghost } from "lucide-react";
 import { redirect } from "next/navigation";
 
 // Constants
@@ -31,15 +30,29 @@ export default async function DashBoardPage() {
 
   // Fetch portfolio data
   const portfolioDbData = await fetchPortfolioDate(user?.id);
-  if (!portfolioDbData) {
-    return "Unable to find your portfolio value at this time.";
+
+  console.log("portfolioData", portfolioDbData);
+  if (portfolioDbData?.length === 0 || !portfolioDbData) {
+    return (
+      <div className="w-3/4 h-[calc(100vh-6rem)] pt-[2rem] mx-auto">
+        <Card className=" h-full flex flex-col items-center justify-center ">
+          <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <p>Sorry...</p>
+            <p>You do not have any listings in your portfolio</p>
+            <Skeleton className="w-full h-4" />
+            <Ghost />
+            <PortfolioInputDialogue userId={user.id} />
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   // Fetch market prices
   const portfolioSymbols = portfolioDbData.map((dataEntry) => dataEntry.ticker);
   const portfolioMarketPrice = await fetchMarketPriceFromBulk(portfolioSymbols);
   if (!portfolioMarketPrice) {
-    return "Unable to fetch market prices.";
+    return "Unable to fetch market price";
   }
 
   // Calculate total portfolio value
@@ -54,12 +67,6 @@ export default async function DashBoardPage() {
   return (
     <div className="w-full mx-auto flex flex-col items-center gap-y-4">
       <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 gap-y-4 ">
-        {/* <HistoricOverview
-          portfolioDbData={portfolioDbData}
-          portfolioSymbols={portfolioSymbols}
-          totalPortfolioValue={totalPortfolioValue}
-        /> */}
-
         <PortfolioDateManage />
         <PortfolioInputDialogue userId={user.id} />
         <PortfolioTable
