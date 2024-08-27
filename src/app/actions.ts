@@ -156,3 +156,46 @@ export async function createPortfolioInput(formData: PortfolioFormDataType) {
     throw new Error("Failed to create portfolio input");
   }
 }
+
+type EditFormDataType = {
+  ticker: string;
+  purchaseDate: Date;
+  purchasePrice: number;
+  quantity: number;
+  userId: string;
+  id: string;
+};
+
+export async function editPortfolioInput(formData: EditFormDataType) {
+  const { purchaseDate, purchasePrice, quantity, id, userId } = formData;
+
+  if (
+    quantity === undefined ||
+    purchasePrice === undefined ||
+    purchaseDate === undefined ||
+    id === undefined
+  ) {
+    throw new Error("All fields are required");
+  }
+
+  try {
+    if (userId) {
+      await prisma.stock.update({
+        where: { id: id },
+        data: {
+          purchaseDate: purchaseDate,
+          purchasePrice: purchasePrice,
+          quantity: quantity,
+        },
+      });
+
+      // // Ensure the path is correct and revalidation is supported
+      revalidatePath(`/dashboard/${userId}`);
+
+      return { success: true };
+    }
+  } catch (error) {
+    console.error("Error creating portfolio input:", error);
+    throw new Error("Failed to create portfolio input");
+  }
+}

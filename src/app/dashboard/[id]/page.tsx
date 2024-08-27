@@ -56,7 +56,7 @@ export default async function DashBoardPage() {
         <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 gap-y-4 ">
           {/* <PortfolioOverview /> */}
           <PortfolioTable
-            userID={user.id}
+            userId={user.id}
             username={username}
             portfolioSnapshot={portfolioSnapshot}
             portfolioMarketPrice={portfolioMarketPrice}
