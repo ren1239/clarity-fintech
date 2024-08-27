@@ -1,11 +1,9 @@
 import { APIPortfolioBatchPriceType } from "@/APItypes";
-import { PortfolioDBType } from "@/types";
 import { convertCurrency, moneyFormatter } from "../Calculations/Formatter";
 import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -17,26 +15,36 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { PortfolioSnapshotType } from "@/types";
+import PortfolioInputDialogue from "./PortfolioInputDialogue";
+import { Button } from "../ui/button";
 
 export default function PortfolioTable({
-  portfolioDbData,
+  portfolioSnapshot,
   portfolioMarketPrice,
   username,
+  userID,
 }: {
-  portfolioDbData: PortfolioDBType[];
+  portfolioSnapshot: PortfolioSnapshotType[];
   portfolioMarketPrice: APIPortfolioBatchPriceType[];
   username: string;
+  userID: string;
 }) {
   // Constants
-  const BASE_CURRENCY = "USD";
+  const BASE_CURRENCY = process.env.BASE_CURRENCY || "USD";
 
   return (
     <Card className="w-full h-[400px] overflow-y-auto mb-10">
-      <CardHeader className="mb-4 border-b">
-        <CardTitle>Welcome Back {username}!</CardTitle>
-        <CardDescription>
-          This table represents your current portfolio holdings
-        </CardDescription>
+      <CardHeader className="mb-4 border-b flex flex-row justify-between items-center">
+        <div className="">
+          <CardTitle>Welcome Back {username}!</CardTitle>
+          <CardDescription>
+            This table represents your current portfolio holdings
+          </CardDescription>
+        </div>
+        <div>
+          <PortfolioInputDialogue userId={userID} />
+        </div>
       </CardHeader>
       <CardContent className="h-[300px] ">
         <Table>
@@ -47,10 +55,11 @@ export default function PortfolioTable({
               <TableHead>Avg Cost</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Market Value</TableHead>
+              <TableHead>Total Gain</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className=" ">
-            {portfolioDbData.map((stock) => {
+            {portfolioSnapshot.map((stock) => {
               const marketPrice =
                 portfolioMarketPrice.find(
                   (item) => item.symbol === stock.ticker
@@ -61,6 +70,10 @@ export default function PortfolioTable({
                 stock.currency !== BASE_CURRENCY
                   ? convertCurrency(marketValue, stock.currency, BASE_CURRENCY)
                   : marketValue;
+
+              const purchaseValue =
+                (stock._avg.purchasePrice || 0) * (stock._sum.quantity || 0);
+              const totalGain = marketValueInUSD - purchaseValue;
 
               return (
                 <TableRow key={stock.ticker}>
@@ -74,6 +87,16 @@ export default function PortfolioTable({
                   </TableCell>
                   <TableCell>
                     {moneyFormatter(marketValueInUSD)} {BASE_CURRENCY}
+                  </TableCell>
+                  <TableCell
+                    className={`${
+                      totalGain >= 0 ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {moneyFormatter(totalGain)} {BASE_CURRENCY}
+                  </TableCell>
+                  <TableCell>
+                    <Button variant={"ghost"}>Edit</Button>
                   </TableCell>
                 </TableRow>
               );
