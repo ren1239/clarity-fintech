@@ -14,6 +14,7 @@ import { fetchPortfolioSnapshot } from "@/components/Dashboard/Helper/FetchPortf
 import { getUserSession } from "@/components/Dashboard/Helper/GetUserSession";
 import { unstable_cache } from "next/cache";
 import { APICompanyProfileType } from "@/APItypes";
+import { PortfolioSnapshotType } from "@/types";
 
 export default async function DashBoardPage() {
   try {
@@ -25,7 +26,8 @@ export default async function DashBoardPage() {
     let username = user.given_name || "New User";
 
     // Fetch portfolio data
-    const portfolioSnapshot = await fetchPortfolioSnapshot(user.id);
+    const portfolioSnapshot: PortfolioSnapshotType[] =
+      await fetchPortfolioSnapshot(user.id);
 
     if (portfolioSnapshot?.length === 0 || !portfolioSnapshot) {
       return <FallbackUI userId={user.id} />;

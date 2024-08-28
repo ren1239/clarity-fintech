@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "./lib/db";
-import { Savings } from "@prisma/client";
 
 type SavingFormDataType = {
   userId: string;
@@ -197,5 +196,52 @@ export async function editPortfolioInput(formData: EditFormDataType) {
   } catch (error) {
     console.error("Error creating portfolio input:", error);
     throw new Error("Failed to create portfolio input");
+  }
+}
+
+export async function postPriceTarget({
+  symbol,
+  currency,
+  priceTarget,
+  userId,
+}: {
+  symbol: string;
+  currency: string;
+  priceTarget: number;
+  userId: string;
+}): Promise<{ success: boolean; message: string; data?: any }> {
+  if (!symbol || !currency || priceTarget === undefined || !userId) {
+    throw new Error("Error posting Price Target: All fields are required");
+  }
+
+  try {
+    const stockInPortfolio = await prisma.stock.findFirst({
+      where: {
+        ticker: symbol,
+        userId: userId,
+      },
+    });
+
+    const priceTargetData = {
+      ticker: symbol,
+      priceTarget: priceTarget,
+      currency: currency,
+      userId: userId,
+      stockId: stockInPortfolio?.id || null,
+    };
+
+    console.log(priceTargetData, "checking price target data");
+
+    await prisma.priceTarget.create({
+      data: priceTargetData,
+    });
+
+    return {
+      success: true,
+      message: "Price Target successfully posted",
+      data: priceTarget,
+    };
+  } catch (error: any) {
+    throw new Error(`Error posting Price Target: ${error.message}`);
   }
 }

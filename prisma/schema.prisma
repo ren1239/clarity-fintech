@@ -12,13 +12,14 @@ datasource db {
 }
 
 model User {
-  id           String    @id @unique
+  id           String        @id @unique
   email        String
   firstName    String
   lastName     String
   profileImage String?
   Savings      Savings[]
   Stock        Stock[]
+  PriceTargets PriceTarget[]
 
   createdAt DateTime @default(now())
 }
@@ -55,4 +56,21 @@ model Stock {
 
   User   User?   @relation(fields: [userId], references: [id])
   userId String?
+
+  PriceTarget PriceTarget[]
+}
+
+model PriceTarget {
+  id        String   @id @default(uuid())
+  ticker    String
+  createdAt DateTime @default(now())
+
+  priceTarget Float
+  currency    String
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  stockId String? // Optional link to Stock
+  Stock   Stock?  @relation(fields: [stockId], references: [id])
 }
