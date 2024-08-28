@@ -92,7 +92,7 @@ export interface dcfResultsType {
   terminalYearPvFcf: number;
 }
 
-export interface PortfolioSnapshotType {
+export interface GroupedPortfolioDataType {
   ticker: string;
   currency: string;
   _avg: {
@@ -101,9 +101,11 @@ export interface PortfolioSnapshotType {
   _sum: {
     quantity: number | null;
   };
+}
+
+export interface PortfolioSnapshotType extends GroupedPortfolioDataType {
   targetPrice: number;
 }
-[];
 
 export interface PriceByDateType {
   date: string;
