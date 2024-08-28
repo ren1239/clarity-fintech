@@ -1,12 +1,14 @@
 import prisma from "@/app/lib/db";
 import { PortfolioSnapshotType } from "@/types";
 
+type GroupedPortfolioData = Omit<PortfolioSnapshotType, "targetPrice">;
+
 //Fetch portfolio data grouped by ticker and currency
 export async function fetchPortfolioSnapshot(userId: string | undefined) {
   if (!userId) return null;
 
   try {
-    const portfolioSnapshotData: PortfolioSnapshotType[] =
+    const portfolioSnapshotData: GroupedPortfolioData[] =
       await prisma.stock.groupBy({
         by: ["ticker", "currency"],
         where: { userId },
