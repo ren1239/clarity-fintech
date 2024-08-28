@@ -1,6 +1,6 @@
 "use client";
 
-import { APIPortfolioBatchPriceType } from "@/APItypes";
+import { APICompanyProfileType, APIPortfolioBatchPriceType } from "@/APItypes";
 import { convertCurrency, moneyFormatter } from "../Calculations/Formatter";
 import {
   Table,
@@ -34,11 +34,13 @@ export default function PortfolioTable({
   portfolioMarketPrice,
   username,
   userId,
+  companyProfileArray,
 }: {
   portfolioSnapshot: PortfolioSnapshotType[];
   portfolioMarketPrice: APIPortfolioBatchPriceType[];
   username: string;
   userId: string;
+  companyProfileArray: APICompanyProfileType[];
 }) {
   // Constants
   const BASE_CURRENCY = process.env.BASE_CURRENCY || "USD";
@@ -64,8 +66,11 @@ export default function PortfolioTable({
               <TableHead>Shares</TableHead>
               <TableHead>Avg Cost</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Your Price</TableHead>
+
+              <TableHead>Analyst Price</TableHead>
               <TableHead>Market Value</TableHead>
-              <TableHead>Total Gain</TableHead>
+              {/* <TableHead>Total Gain</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody className=" ">
@@ -85,6 +90,10 @@ export default function PortfolioTable({
                 (stock._avg.purchasePrice || 0) * (stock._sum.quantity || 0);
               const totalGain = marketValueInUSD - purchaseValue;
 
+              const profile = companyProfileArray.find(
+                (profile) => profile.symbol === stock.ticker
+              );
+
               return (
                 <TableRow key={stock.ticker}>
                   <TableCell>{stock.ticker}</TableCell>
@@ -95,16 +104,26 @@ export default function PortfolioTable({
                   <TableCell>
                     {moneyFormatter(marketPrice)} {stock.currency}
                   </TableCell>
+                  <TableCell
+                    className={`${
+                      marketPrice <= Number(profile?.dcf)
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {moneyFormatter(Number(profile?.dcf))} {stock.currency}
+                  </TableCell>
+                  <TableCell>your price </TableCell>
                   <TableCell>
                     {moneyFormatter(marketValueInUSD)} {BASE_CURRENCY}
                   </TableCell>
-                  <TableCell
+                  {/* <TableCell
                     className={`${
                       totalGain >= 0 ? "text-green-500" : "text-red-500"
                     }`}
                   >
                     {moneyFormatter(totalGain)} {BASE_CURRENCY}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>
                     <EditSymbolDialogue userId={userId} symbol={stock.ticker} />
                   </TableCell>
