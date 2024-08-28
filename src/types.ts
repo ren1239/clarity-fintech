@@ -101,6 +101,7 @@ export interface PortfolioSnapshotType {
   _sum: {
     quantity: number | null;
   };
+  targetPrice: number;
 }
 [];
 

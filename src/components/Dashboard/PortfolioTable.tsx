@@ -1,7 +1,11 @@
 "use client";
 
 import { APICompanyProfileType, APIPortfolioBatchPriceType } from "@/APItypes";
-import { convertCurrency, moneyFormatter } from "../Calculations/Formatter";
+import {
+  convertCurrency,
+  moneyFormatter,
+  percentFormatter,
+} from "../Calculations/Formatter";
 import {
   Table,
   TableBody,
@@ -46,7 +50,7 @@ export default function PortfolioTable({
   const BASE_CURRENCY = process.env.BASE_CURRENCY || "USD";
 
   return (
-    <Card className="w-full h-[400px] overflow-y-auto mb-10">
+    <Card className="w-full max-h-[calc(100vh-6rem)] overflow-y-auto mb-10">
       <CardHeader className="mb-4 border-b flex flex-row justify-between items-center">
         <div className="">
           <CardTitle>Welcome Back {username}!</CardTitle>
@@ -58,18 +62,20 @@ export default function PortfolioTable({
           <PortfolioInputDialogue userId={userId} />
         </div>
       </CardHeader>
-      <CardContent className="h-[300px] ">
+      <CardContent className="relative ">
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="sticky top-0 bg-white z-10 p-2 h-[100px] ">
+            <TableRow className="">
               <TableHead>Symbol</TableHead>
               <TableHead>Shares</TableHead>
               <TableHead>Avg Cost</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Your Price</TableHead>
+              <TableHead>MOS</TableHead>
 
               <TableHead>Analyst Price</TableHead>
               <TableHead>Market Value</TableHead>
+              <TableHead>Edit</TableHead>
               {/* <TableHead>Total Gain</TableHead> */}
             </TableRow>
           </TableHeader>
@@ -88,15 +94,21 @@ export default function PortfolioTable({
 
               const purchaseValue =
                 (stock._avg.purchasePrice || 0) * (stock._sum.quantity || 0);
-              const totalGain = marketValueInUSD - purchaseValue;
 
               const profile = companyProfileArray.find(
                 (profile) => profile.symbol === stock.ticker
               );
 
               return (
-                <TableRow key={stock.ticker}>
-                  <TableCell>{stock.ticker}</TableCell>
+                <TableRow key={stock.ticker} className="">
+                  <TableCell className="font-bold">
+                    <Link
+                      href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/stock/${stock.ticker}`}
+                    >
+                      {stock.ticker}
+                    </Link>
+                  </TableCell>
+
                   <TableCell>{stock._sum.quantity ?? "N/A"}</TableCell>
                   <TableCell>
                     {moneyFormatter(stock._avg.purchasePrice ?? 0)}
@@ -104,19 +116,56 @@ export default function PortfolioTable({
                   <TableCell>
                     {moneyFormatter(marketPrice)} {stock.currency}
                   </TableCell>
+
+                  {/* Your Price */}
+
                   <TableCell
-                    className={`${
-                      marketPrice <= Number(profile?.dcf)
-                        ? "text-green-500"
-                        : "text-red-500"
+                    className={` ${
+                      stock.targetPrice === 0
+                        ? "text-black"
+                        : stock.targetPrice <= marketPrice
+                        ? "text-red-500"
+                        : "text-green-500"
                     }`}
                   >
+                    <Link
+                      className="flex mx-auto  justify-center"
+                      href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/stock/${stock.ticker}/dcf_calculator`}
+                    >
+                      {stock.targetPrice === 0 ? (
+                        "N/A"
+                      ) : (
+                        <>
+                          {moneyFormatter(stock.targetPrice)}{" "}
+                          {stock.targetPrice > marketPrice ? (
+                            <ArrowUp className="h-4" />
+                          ) : (
+                            <ArrowDown className="h-4" />
+                          )}
+                        </>
+                      )}
+                    </Link>
+                  </TableCell>
+
+                  {/* Margin of Safety */}
+
+                  <TableCell>
+                    {stock.targetPrice !== 0
+                      ? percentFormatter(
+                          (stock.targetPrice - marketPrice) / stock.targetPrice
+                        )
+                      : "N/A"}
+                  </TableCell>
+
+                  {/* Analyst Price Price */}
+
+                  <TableCell>
                     {moneyFormatter(Number(profile?.dcf))} {stock.currency}
                   </TableCell>
-                  <TableCell>your price </TableCell>
                   <TableCell>
                     {moneyFormatter(marketValueInUSD)} {BASE_CURRENCY}
                   </TableCell>
+
                   {/* <TableCell
                     className={`${
                       totalGain >= 0 ? "text-green-500" : "text-red-500"
@@ -329,13 +378,20 @@ import {
 
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { CalendarIcon, Loader } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  CalendarIcon,
+  Loader,
+} from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { cn } from "@/lib/utils";
 import { editPortfolioInput } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
 import Spinner from "../Spinner";
+import Link from "next/link";
 
 function InputEditForm({
   userId,

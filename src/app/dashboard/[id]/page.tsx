@@ -27,7 +27,9 @@ export default async function DashBoardPage() {
 
     // Fetch portfolio data
     const portfolioSnapshot: PortfolioSnapshotType[] =
-      await fetchPortfolioSnapshot(user.id);
+      (await fetchPortfolioSnapshot(user.id)) || [];
+
+    console.log(portfolioSnapshot);
 
     if (portfolioSnapshot?.length === 0 || !portfolioSnapshot) {
       return <FallbackUI userId={user.id} />;
@@ -54,7 +56,7 @@ export default async function DashBoardPage() {
     return (
       <div className="w-full mx-auto flex flex-col items-center gap-y-4">
         <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 gap-y-4 ">
-          {/* <PortfolioOverview /> */}
+          <PortfolioOverview />
           <PortfolioTable
             userId={user.id}
             username={username}
