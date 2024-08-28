@@ -29,8 +29,6 @@ export default async function DashBoardPage() {
     const portfolioSnapshot: PortfolioSnapshotType[] =
       (await fetchPortfolioSnapshot(user.id)) || [];
 
-    console.log(portfolioSnapshot);
-
     if (portfolioSnapshot?.length === 0 || !portfolioSnapshot) {
       return <FallbackUI userId={user.id} />;
     }

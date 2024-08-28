@@ -103,7 +103,15 @@ export interface GroupedPortfolioDataType {
   };
 }
 
-export interface PortfolioSnapshotType extends GroupedPortfolioDataType {
+export interface PortfolioSnapshotType {
+  ticker: string;
+  currency: string;
+  _avg: {
+    purchasePrice: number | null;
+  };
+  _sum: {
+    quantity: number | null;
+  };
   targetPrice: number;
 }
 
