@@ -6,19 +6,18 @@ export async function fetchPortfolioSnapshot(userId: string | undefined) {
   if (!userId) return null;
 
   try {
-    const portfolioSnapshotData: GroupedPortfolioDataType[] =
-      await prisma.stock.groupBy({
-        by: ["ticker", "currency"],
-        where: { userId },
-        _sum: { quantity: true },
-        _avg: { purchasePrice: true },
-        orderBy: { ticker: "asc" },
-      });
+    const portfolioSnapshotData = await prisma.stock.groupBy({
+      by: ["ticker", "currency"],
+      where: { userId },
+      _sum: { quantity: true },
+      _avg: { purchasePrice: true },
+      orderBy: { ticker: "asc" },
+    });
 
     //For each group, find the latest target price
 
     const snapshotWithTarget: PortfolioSnapshotType[] = await Promise.all(
-      portfolioSnapshotData.map(async (group) => {
+      portfolioSnapshotData.map(async (group: any) => {
         const latestTargetPrice = await prisma.priceTarget.findFirst({
           where: {
             ticker: group.ticker,
