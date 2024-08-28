@@ -14,14 +14,10 @@ import {
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
 import Link from "next/link";
+import { StockNameType } from "@/types";
 
 //Define the type for stock name data
-interface StockNameType {
-  symbol: string;
-  name: string;
-  stockExchange: string;
-  exchangeShortName: string;
-}
+
 
 export default function StockInput() {
   const [query, setQuery] = useState<string>("");

@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { useMemo, useState } from "react";
 import { subDays, subMonths, subYears } from "date-fns";
@@ -441,7 +440,7 @@ export function PortfolioLegend({
   const totalPercentageDifference =
     totalStart !== 0 ? totalDifference / totalStart : 0;
 
-  console.log("selecteddaat", selectedData);
+  console.log("selecteddata", selectedData);
 
   return (
     <Card className="flex flex-col min-w-[250px] justify-between h-[525px] ">

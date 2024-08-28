@@ -79,7 +79,7 @@ export function FMPPriceChartCard({
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Clarity Value</CardTitle>
+        <CardTitle>Analyst Price</CardTitle>
         <CardDescription>Recommended Intrinsic Value</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 items-center pb-0">

@@ -92,7 +92,7 @@ export interface dcfResultsType {
   terminalYearPvFcf: number;
 }
 
-export interface PortfolioDBType {
+export interface GroupedPortfolioDataType {
   ticker: string;
   currency: string;
   _avg: {
@@ -102,7 +102,18 @@ export interface PortfolioDBType {
     quantity: number | null;
   };
 }
-[];
+
+export interface PortfolioSnapshotType {
+  ticker: string;
+  currency: string;
+  _avg: {
+    purchasePrice: number | null;
+  };
+  _sum: {
+    quantity: number | null;
+  };
+  targetPrice: number;
+}
 
 export interface PriceByDateType {
   date: string;
@@ -123,4 +134,31 @@ export interface StockNameType {
   name: string;
   stockExchange: string;
   exchangeShortName: string;
+}
+
+export interface PortfolioDBDataType {
+  purchaseDate: string;
+  createdAt: string;
+  updatedAt: string;
+  id: string;
+  ticker: string;
+  purchasePrice: number;
+  quantity: number;
+  currency: string;
+  country: string;
+  sector: string | null;
+  industry: string | null;
+  exchange: string | null;
+  userId: string | null;
+}
+
+export interface GroupedPortfolioType {
+  symbol: string;
+  earliestPurchaseDate: string;
+}
+
+export interface PortfolioValueBreakdown {
+  totalValue: number;
+  breakdown: { [ticker: string]: number };
+  countryBreakdown: { [country: string]: { [ticker: string]: number } };
 }

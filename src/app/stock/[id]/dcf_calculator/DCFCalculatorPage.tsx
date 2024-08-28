@@ -17,11 +17,18 @@ import { CompanyBanner } from "@/components/CompanyBanner";
 import { AnalystEstimatesCard } from "@/components/DcfCalculator/AnalystEstimatesCard";
 import SensitivityAnalysisCard from "@/components/DcfCalculator/SensitivityAnalysisCard";
 import BackTestDCFCard from "@/components/DcfCalculator/BackTestDCFCard";
+import { Button } from "@/components/ui/button";
+import { Star, StarIcon, StarOff } from "lucide-react";
+import { postPriceTarget } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import Spinner from "@/components/Spinner";
 
 export default function DCFCalculatorPage({
   data,
+  userId,
 }: {
   data: APIStockDataWrapper;
+  userId: string;
 }) {
   const [dcfResults, setDcfResults] = useState<dcfResultsType | null>(null);
   const [dcfInput, setDcfInput] = useState<dcfCalculationType>({
@@ -131,6 +138,11 @@ export default function DCFCalculatorPage({
                 />
               </div>
               <DcfValueCard dcfResults={dcfResults} dcfInput={dcfInput} />
+              <SaveDCFTargetButton
+                data={data}
+                dcfResults={dcfResults}
+                userId={userId}
+              />
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
@@ -164,5 +176,76 @@ export default function DCFCalculatorPage({
         </div>
       </div>
     </div>
+  );
+}
+
+function SaveDCFTargetButton({
+  data,
+  dcfResults,
+  userId,
+}: {
+  data: APIStockDataWrapper;
+  dcfResults: dcfResultsType | null;
+  userId: string;
+}) {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSaveDCFTarget = async () => {
+    try {
+      setLoading(true);
+      if (dcfResults === null) {
+        throw new Error("dcfResults not valid.");
+      }
+
+      const symbol = data.companyProfile?.symbol || "Error";
+      const currency = data.companyProfile?.currency || "N/A";
+      const priceTarget = isNaN(dcfResults.dcfValue)
+        ? 0
+        : Number(dcfResults.dcfValue.toFixed(2));
+
+      if (symbol === "Error") {
+        throw new Error("Symbol is missing from the company profile.");
+      }
+      if (currency === "N/A") {
+        throw new Error("Currency is missing from the company profile.");
+      }
+      if (priceTarget === 0) {
+        throw new Error("Price target is zero or invalid.");
+      }
+      console.log("Saving DCF Target:", {
+        symbol,
+        currency,
+        priceTarget,
+        userId,
+      });
+
+      const response = await postPriceTarget({
+        symbol,
+        currency,
+        priceTarget,
+        userId,
+      });
+      console.log("Price Target successfully posted", response);
+    } catch (error: any) {
+      console.error("Error saving DCF target", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Button onClick={handleSaveDCFTarget} disabled={loading}>
+        {loading ? (
+          <>
+            <Spinner />
+            <span className="ml-2">Submitting...</span>
+          </>
+        ) : (
+          <Star />
+        )}
+      </Button>
+    </>
   );
 }
