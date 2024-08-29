@@ -1,6 +1,13 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useMemo, useState } from "react";
 import { subDays, subMonths, subYears } from "date-fns";
 import {
@@ -28,6 +35,7 @@ import { moneyFormatter, percentFormatter } from "../Calculations/Formatter";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { PortfolioValueDataType } from "@/types";
 import { start } from "repl";
+import { ArrowBigDownDash, ArrowBigUpDash } from "lucide-react";
 
 const chartConfig = {
   totalValue: {
@@ -41,8 +49,10 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function PortfolioValueChart({
+  portfolioPriceTarget,
   portfolioValueData,
 }: {
+  portfolioPriceTarget: number;
   portfolioValueData: PortfolioValueDataType[];
 }) {
   const [timeRange, setTimeRange] = useState("6M");
@@ -52,6 +62,7 @@ export function PortfolioValueChart({
     () => (portfolioValueData ? portfolioValueData : []),
     [portfolioValueData]
   );
+  const priceTargetRef = Number(portfolioPriceTarget.toFixed());
 
   const filteredData: PortfolioValueDataType[] = useMemo(() => {
     const now = new Date();
@@ -136,12 +147,18 @@ export function PortfolioValueChart({
       filteredData[filteredData.length - 1].countryBreakdown?.US ?? {}
     ).reduce((acc, curr) => acc + curr, 0) || 0;
 
+  const priceDifference = totalPortfolioValue - portfolioPriceTarget;
+  const upsidePotential =
+    portfolioPriceTarget !== 0
+      ? (portfolioPriceTarget - totalPortfolioValue) / totalPortfolioValue
+      : 0;
+
   return (
     <div className="flex flex-col md:flex-row gap-3 ">
       <Card className=" flex-1">
         <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
           <div className="grid flex-1 gap-1 text-center sm:text-left">
-            <CardTitle>
+            <CardTitle className="text-xl ">
               {displayMode === "totalValue"
                 ? `Total Portfolio Value - ${
                     totalPortfolioValue !== null
@@ -207,7 +224,7 @@ export function PortfolioValueChart({
             config={
               displayMode === "totalValue" ? chartConfig : chartConfigMulti
             }
-            className=" h-[350px] aspect-auto"
+            className=" h-[470px] aspect-auto"
           >
             <AreaChart
               accessibilityLayer
@@ -224,7 +241,14 @@ export function PortfolioValueChart({
                 axisLine={false}
                 tickMargin={8}
                 tickCount={3}
-                // domain={[0, (dataMax: number) => Math.ceil(dataMax * 1.3)]} // Adds a 30% buffer to the top
+                domain={[
+                  0,
+                  (dataMax: number) =>
+                    Math.max(
+                      roundToTwoSig(Math.ceil(dataMax * 1.1)),
+                      roundToTwoSig(priceTargetRef * 1.1)
+                    ),
+                ]} // Adds a 30% buffer to the top
                 padding={{ top: 40 }}
               />
               <XAxis
@@ -306,10 +330,56 @@ export function PortfolioValueChart({
                   />
                 ))
               )}
+              {/* Horizontal reference line for the intrinsic value price */}
+              {displayMode === "totalValue" ? (
+                <ReferenceLine
+                  y={portfolioPriceTarget}
+                  label={{
+                    value: `Intrinsic Value (${moneyFormatter(
+                      portfolioPriceTarget
+                    )})`,
+                    position: "top",
+                    fontSize: 12,
+                    fill: "black",
+                  }}
+                  stroke="black"
+                  strokeDasharray="3 3"
+                />
+              ) : null}
             </AreaChart>
           </ChartContainer>
         </CardContent>
-        <CardFooter className="flex justify-end">
+        <CardFooter className="flex flex-col gap-y-3 md:flex-row justify-between">
+          {/* Portfolio Intrinsice value */}
+
+          <div className="flex-col items-center justify-center md:border-r md:pr-6">
+            {priceDifference <= 0 ? (
+              <div className="flex flex-col items-center">
+                <div className="flex text-green-500 items-center justify-center">
+                  <h3 className="fill-foreground text-xl font-bold flex items-center">
+                    {percentFormatter(upsidePotential)}
+                  </h3>
+                  <ArrowBigUpDash />
+                </div>
+                <p className="text-center p-2 bg-green-500 rounded-md bg-opacity-40 min-w-32 max-w-64 text-xs font-semibold">
+                  {moneyFormatter(Math.abs(priceDifference))} Undervalued
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <div className="flex text-red-500 items-center justify-center">
+                  <h3 className="fill-foreground text-3xl font-bold flex items-center">
+                    {percentFormatter(upsidePotential)}
+                  </h3>
+                  <ArrowBigDownDash />
+                </div>
+                <p className="text-center p-2 bg-red-500 rounded-md bg-opacity-40 min-w-32 max-w-64 font-semibold">
+                  {moneyFormatter(Math.abs(priceDifference))} Overvalued
+                </p>
+              </div>
+            )}
+          </div>
+
           <ToggleGroup
             type="single"
             size="sm"
@@ -440,10 +510,8 @@ export function PortfolioLegend({
   const totalPercentageDifference =
     totalStart !== 0 ? totalDifference / totalStart : 0;
 
-  console.log("selecteddata", selectedData);
-
   return (
-    <Card className="flex flex-col min-w-[250px] justify-between h-[525px] ">
+    <Card className="flex flex-col min-w-[250px] justify-between  ">
       <CardHeader className="mb-4">
         <CardTitle>Company</CardTitle>
 
@@ -467,4 +535,12 @@ export function PortfolioLegend({
       </CardFooter>
     </Card>
   );
+}
+
+// Helper Function
+
+function roundToTwoSig(value: number) {
+  if (value === 0) return 0;
+  const factor = Math.pow(10, Math.floor(Math.log10(Math.abs(value))) - 1);
+  return Math.round(value / factor) * factor;
 }

@@ -1,5 +1,5 @@
 import prisma from "@/app/lib/db";
-import { GroupedPortfolioDataType, PortfolioSnapshotType } from "@/types";
+import { PortfolioSnapshotType } from "@/types";
 
 //Fetch portfolio data grouped by ticker and currency
 export async function fetchPortfolioSnapshot(userId: string | undefined) {

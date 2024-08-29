@@ -17,12 +17,12 @@ import { APICompanyProfileType } from "@/APItypes";
 import { PortfolioSnapshotType } from "@/types";
 
 export default async function DashBoardPage() {
+  const user = await getUserSession();
+  // Redirect to home if no user (Outside of the try-catch block-so it fails out before )
+  if (!user) {
+    redirect("/api/auth/register?");
+  }
   try {
-    const user = await getUserSession();
-    // Redirect to home if no user
-    if (!user) {
-      redirect("/");
-    }
     let username = user.given_name || "New User";
 
     // Fetch portfolio data
@@ -54,7 +54,10 @@ export default async function DashBoardPage() {
     return (
       <div className="w-full mx-auto flex flex-col items-center gap-y-4">
         <div className=" flex-1 pt-4 justify-between items-center flex flex-col min-h-[calc(100vh-4.5rem)] lg:w-3/4 lg:px-0 w-full px-4 gap-y-4 ">
-          <PortfolioOverview />
+          <PortfolioOverview
+            portfolioSnapshot={portfolioSnapshot}
+            portfolioMarketPrice={portfolioMarketPrice}
+          />
           <PortfolioTable
             userId={user.id}
             username={username}
@@ -67,6 +70,7 @@ export default async function DashBoardPage() {
     );
   } catch (error) {
     console.error("An error occurred while loading the dashboard:", error);
+
     return (
       <div className="w-3/4 h-[calc(100vh-6rem)] pt-[2rem] mx-auto">
         <Card className=" h-full flex flex-col items-center justify-center ">

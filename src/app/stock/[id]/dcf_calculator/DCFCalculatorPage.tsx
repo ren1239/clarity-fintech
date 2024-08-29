@@ -22,6 +22,7 @@ import { Star, StarIcon, StarOff } from "lucide-react";
 import { postPriceTarget } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
+import { convertCurrency } from "@/components/Calculations/Formatter";
 
 export default function DCFCalculatorPage({
   data,
@@ -90,6 +91,8 @@ export default function DCFCalculatorPage({
     );
   }
 
+  console.log(dcfResults, "this is the dcf results");
+
   return (
     <div className="w-full mx-auto flex flex-col items-center ">
       <div className=" lg:w-3/4 lg:px-0 w-full px-4  pt-4 ">
@@ -142,6 +145,7 @@ export default function DCFCalculatorPage({
                 data={data}
                 dcfResults={dcfResults}
                 userId={userId}
+                dcfInput={dcfInput}
               />
             </div>
           </div>
@@ -182,14 +186,17 @@ export default function DCFCalculatorPage({
 function SaveDCFTargetButton({
   data,
   dcfResults,
+  dcfInput,
   userId,
 }: {
   data: APIStockDataWrapper;
   dcfResults: dcfResultsType | null;
+  dcfInput: dcfCalculationType | null;
   userId: string;
 }) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+
+  const { reportedCurrency = "N/A" } = dcfInput ?? {};
 
   const handleSaveDCFTarget = async () => {
     try {
@@ -200,9 +207,20 @@ function SaveDCFTargetButton({
 
       const symbol = data.companyProfile?.symbol || "Error";
       const currency = data.companyProfile?.currency || "N/A";
-      const priceTarget = isNaN(dcfResults.dcfValue)
+      let priceTarget = 0;
+      let rawPriceTarget = isNaN(dcfResults.dcfValue)
         ? 0
         : Number(dcfResults.dcfValue.toFixed(2));
+
+      if (reportedCurrency !== currency) {
+        priceTarget = convertCurrency(
+          rawPriceTarget,
+          reportedCurrency,
+          currency
+        );
+      } else {
+        priceTarget = rawPriceTarget;
+      }
 
       if (symbol === "Error") {
         throw new Error("Symbol is missing from the company profile.");
