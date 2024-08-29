@@ -2,15 +2,24 @@
 "use server";
 
 import { APIStockDataWrapper } from "@/APItypes";
+import { getUserSession } from "@/components/Dashboard/Helper/GetUserSession";
 import CompanyProfile from "@/components/Stock/CompanyProfile";
 import { GrowthChartCard } from "@/components/Stock/GrowthChartCard";
 import MarketChartCard from "@/components/Stock/MarketChartCard";
+import { redirect } from "next/navigation";
 
 interface IndividualStockPageProps {
   data: APIStockDataWrapper;
 }
 
-const IndividualStockPage: React.FC<IndividualStockPageProps> = ({ data }) => {
+const IndividualStockPage: React.FC<IndividualStockPageProps> = async ({
+  data,
+}) => {
+  const user = await getUserSession();
+
+  if (!user) {
+    redirect("/api/auth/register?");
+  }
   const {
     companyProfile,
     financialGrowth,

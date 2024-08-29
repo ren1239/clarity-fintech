@@ -92,9 +92,6 @@ export default function PortfolioTable({
                   ? convertCurrency(marketValue, stock.currency, BASE_CURRENCY)
                   : marketValue;
 
-              const purchaseValue =
-                (stock._avg.purchasePrice || 0) * (stock._sum.quantity || 0);
-
               const profile = companyProfileArray.find(
                 (profile) => profile.symbol === stock.ticker
               );
@@ -152,7 +149,7 @@ export default function PortfolioTable({
                   <TableCell>
                     {stock.targetPrice !== 0
                       ? percentFormatter(
-                          (stock.targetPrice - marketPrice) / stock.targetPrice
+                          (stock.targetPrice - marketPrice) / marketPrice
                         )
                       : "N/A"}
                   </TableCell>
