@@ -304,13 +304,94 @@ function TransactionDisplay({ transaction }: { transaction: TransactionType }) {
             {transaction.quantity}
           </p>
         </div>
-        <EditTransactionDialogue
-          transactionId={id}
-          symbol={ticker}
-          userId={userId}
-        />
+        <div className="flex gap-2">
+          <EditTransactionDialogue
+            transactionId={id}
+            symbol={ticker}
+            userId={userId}
+          />
+          <DeleteTransactionButton
+            transactionId={id}
+            symbol={ticker}
+            userId={userId}
+            onDelete={() => window.location.reload()}
+          />
+        </div>
       </CardContent>
     </Card>
+  );
+}
+
+import { deletePortfolioInput } from "@/app/actions";
+import { useToast } from "../ui/use-toast";
+
+function DeleteTransactionButton({
+  transactionId,
+  symbol,
+  userId,
+  onDelete,
+}: {
+  transactionId: string;
+  symbol: string;
+  userId: string;
+  onDelete: () => void;
+}) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await deletePortfolioInput({ transactionId, userId });
+      toast({
+        title: "Success",
+        description: "Transaction deleted successfully",
+      });
+      onDelete();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete transaction",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setDialogOpen(false);
+    }
+  };
+
+  return (
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          className="hover:bg-destructive/90 hover:text-white"
+        >
+          Delete
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Delete Transaction</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete this transaction for {symbol}?
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex gap-2 justify-end">
+          <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={loading}
+          >
+            {loading ? "Deleting..." : "Delete"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

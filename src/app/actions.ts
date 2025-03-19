@@ -199,6 +199,35 @@ export async function editPortfolioInput(formData: EditFormDataType) {
   }
 }
 
+export async function deletePortfolioInput({
+  transactionId,
+  userId,
+}: {
+  transactionId: string;
+  userId: string;
+}): Promise<{ success: boolean; message: string }> {
+  if (!transactionId || !userId) {
+    throw new Error("Error deleting transaction: All fields are required");
+  }
+
+  try {
+    await prisma.stock.delete({
+      where: {
+        id: transactionId,
+        userId: userId,
+      },
+    });
+
+    revalidatePath(`/dashboard/${userId}`);
+    return {
+      success: true,
+      message: "Transaction successfully deleted",
+    };
+  } catch (error: any) {
+    throw new Error(`Error deleting transaction: ${error.message}`);
+  }
+}
+
 export async function postPriceTarget({
   symbol,
   currency,
