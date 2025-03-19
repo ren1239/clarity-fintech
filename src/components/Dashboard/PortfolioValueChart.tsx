@@ -242,14 +242,15 @@ export function PortfolioValueChart({
                 tickMargin={8}
                 tickCount={3}
                 domain={[
-                  0,
+                  (dataMin: number) => Math.max(0, dataMin * 0.9), // Start at 10% below min value
                   (dataMax: number) =>
                     Math.max(
                       roundToTwoSig(Math.ceil(dataMax * 1.1)),
                       roundToTwoSig(priceTargetRef * 1.1)
                     ),
-                ]} // Adds a 30% buffer to the top
+                ]}
                 padding={{ top: 40 }}
+                hide={true}
               />
               <XAxis
                 dataKey="date"
@@ -272,10 +273,7 @@ export function PortfolioValueChart({
                   }
                 }}
               />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="dot" />}
-              />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
               {displayMode === "totalValue" ? (
                 <Area
                   dataKey="totalValue"

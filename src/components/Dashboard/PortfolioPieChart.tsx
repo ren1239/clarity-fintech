@@ -3,7 +3,17 @@
 
 import { format } from "date-fns";
 import { PortfolioValueDataType } from "@/types";
-import { Label, Pie, PieChart } from "recharts";
+import { Label, Pie, PieChart, TooltipProps } from "recharts";
+import {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
+
+type PieChartData = {
+  name: string;
+  value: number;
+  fill: string;
+};
 import {
   Card,
   CardContent,
@@ -101,7 +111,38 @@ export function CountryPieChart({
           <PieChart>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={({
+                active,
+                payload,
+              }: TooltipProps<ValueType, NameType>) => {
+                if (!active || !payload) return null;
+
+                return (
+                  <div className="rounded-lg border bg-background p-2 shadow-sm">
+                    {(payload as PieChartData[]).map((entry, index) => {
+                      const value = entry.value;
+                      const percentage = ((value / totalValue) * 100).toFixed(
+                        2
+                      );
+                      return (
+                        <div key={`item-${index}`} className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="h-3 w-3 rounded-sm border border-foreground/10"
+                              style={{ backgroundColor: entry.fill }}
+                            />
+                            <span className="font-medium">{entry.name}</span>
+                          </div>
+                          <div className="text-sm">{moneyFormatter(value)}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {percentage}% of portfolio
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              }}
             />
             <Pie
               data={topHoldings}
