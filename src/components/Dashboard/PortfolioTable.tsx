@@ -49,6 +49,82 @@ export default function PortfolioTable({
   // Constants
   const BASE_CURRENCY = process.env.BASE_CURRENCY || "USD";
 
+  // Sort state
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "marketValue", direction: "desc" });
+
+  // Sorting logic
+  const sortedPortfolio = useMemo(() => {
+    if (!sortConfig.key) return portfolioSnapshot;
+
+    return [...portfolioSnapshot].sort((a, b) => {
+      const marketPriceA =
+        portfolioMarketPrice.find((item) => item.symbol === a.ticker)?.price ||
+        0;
+      const marketPriceB =
+        portfolioMarketPrice.find((item) => item.symbol === b.ticker)?.price ||
+        0;
+
+      const valueA = marketPriceA * (a._sum.quantity ?? 0);
+      const valueB = marketPriceB * (b._sum.quantity ?? 0);
+
+      const mosA = (a.targetPrice - marketPriceA) / marketPriceA;
+      const mosB = (b.targetPrice - marketPriceB) / marketPriceB;
+
+      let comparison = 0;
+
+      switch (sortConfig.key) {
+        case "symbol":
+          comparison = a.ticker.localeCompare(b.ticker);
+          break;
+        case "shares":
+          comparison = (a._sum.quantity ?? 0) - (b._sum.quantity ?? 0);
+          break;
+        case "avgCost":
+          comparison =
+            (a._avg.purchasePrice ?? 0) - (b._avg.purchasePrice ?? 0);
+          break;
+        case "price":
+          comparison = marketPriceA - marketPriceB;
+          break;
+        case "yourPrice":
+          comparison = (a.targetPrice ?? 0) - (b.targetPrice ?? 0);
+          break;
+        case "mos":
+          comparison = mosA - mosB;
+          break;
+        case "marketValue":
+          comparison = valueA - valueB;
+          break;
+        default:
+          comparison = 0;
+      }
+
+      return sortConfig.direction === "asc" ? comparison : -comparison;
+    });
+  }, [portfolioSnapshot, portfolioMarketPrice, sortConfig]);
+
+  // Handle header click
+  const requestSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort indicator
+  const getSortIndicator = (key: string) => {
+    if (sortConfig.key !== key) return null;
+    return sortConfig.direction === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
+  };
+
   return (
     <Card className="w-full max-h-[calc(100vh-6rem)] overflow-y-auto mb-10">
       <CardHeader className="mb-4 border-b flex flex-row justify-between items-center">
@@ -66,21 +142,55 @@ export default function PortfolioTable({
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10 p-2 h-[100px] ">
             <TableRow className="">
-              <TableHead>Symbol</TableHead>
-              <TableHead>Shares</TableHead>
-              <TableHead>Avg Cost</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Your Price</TableHead>
-              <TableHead>MOS</TableHead>
-
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => requestSort("symbol")}
+              >
+                Symbol {getSortIndicator("symbol")}
+              </TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => requestSort("shares")}
+              >
+                Shares {getSortIndicator("shares")}
+              </TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => requestSort("avgCost")}
+              >
+                Avg Cost {getSortIndicator("avgCost")}
+              </TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => requestSort("price")}
+              >
+                Price {getSortIndicator("price")}
+              </TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => requestSort("yourPrice")}
+              >
+                Your Price {getSortIndicator("yourPrice")}
+              </TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => requestSort("mos")}
+              >
+                MOS {getSortIndicator("mos")}
+              </TableHead>
               <TableHead>Analyst Price</TableHead>
-              <TableHead>Market Value</TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => requestSort("marketValue")}
+              >
+                Market Value {getSortIndicator("marketValue")}
+              </TableHead>
               <TableHead>Edit</TableHead>
               {/* <TableHead>Total Gain</TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody className=" ">
-            {portfolioSnapshot.map((stock) => {
+            {sortedPortfolio.map((stock) => {
               const marketPrice =
                 portfolioMarketPrice.find(
                   (item) => item.symbol === stock.ticker
@@ -183,7 +293,8 @@ export default function PortfolioTable({
   );
 }
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import { format, subDays } from "date-fns";
 
 function EditSymbolDialogue({
@@ -469,7 +580,6 @@ import { editPortfolioInput } from "@/app/actions";
 import { useRouter } from "next/navigation";
 
 import Spinner from "../Spinner";
-import Link from "next/link";
 
 function InputEditForm({
   userId,
