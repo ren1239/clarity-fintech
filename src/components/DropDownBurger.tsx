@@ -63,13 +63,13 @@ export default async function DropDownBurger() {
         {/* Retirement */}
         <DropdownMenuItem>
           <Link
-            href="/dcf_calculator"
+            href="/top-picks"
             className={buttonVariants({
               variant: "ghost",
               size: "sm",
             })}
           >
-            Cash Flow
+            Top Picks
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

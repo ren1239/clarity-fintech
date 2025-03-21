@@ -62,13 +62,13 @@ export default async function Navbar() {
               Retirement
             </Link>
             <Link
-              href="/dcf_calculator"
+              href="/top-picks"
               className={buttonVariants({
                 variant: "ghost",
                 size: "sm",
               })}
             >
-              Cash Flow
+              Top Picks
             </Link>
           </div>
 
