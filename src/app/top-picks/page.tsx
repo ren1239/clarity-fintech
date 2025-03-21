@@ -11,7 +11,7 @@ export default function TopPicksPage() {
         className="p-6  py-4
       "
       >
-        <h1 className="text-2xl font-bold mb-6">Our Picks</h1>
+        <h1 className="text-2xl font-bold mb-6">Our Picks - March</h1>
         <div className="">
           <p className="text-muted-foreground mb-4">
             Companies we are personally looking into

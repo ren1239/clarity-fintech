@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Table, List } from "lucide-react";
 import { StockCard } from "./StockCard";
+import { useStockDataFetcher } from "./StockDataFetcher";
 
 interface StockData {
   id: number;
@@ -24,94 +25,55 @@ interface SortConfig {
 const placeholderData = [
   {
     id: 1,
-    symbol: "AAPL",
-    name: "Apple Inc.",
+    symbol: "META",
+    name: "Meta",
     currentPrice: 189.25,
-    dcfValue: 210.5,
-    marginOfSafety: 11.2,
+    dcfValue: 670,
+    marginOfSafety: 0,
     rating: 4.5,
     sector: "Technology",
   },
   {
     id: 2,
-    symbol: "MSFT",
-    name: "Microsoft Corporation",
-    currentPrice: 415.5,
-    dcfValue: 150.0,
-    marginOfSafety: -28.3,
-    rating: 4.7,
-    sector: "Technology",
-  },
-  {
-    id: 3,
-    symbol: "TSLA",
-    name: "Tesla, Inc.",
-    currentPrice: 250.75,
-    dcfValue: 480.0,
-    marginOfSafety: 31.7,
-    rating: 4.2,
-    sector: "Automotive",
-  },
-  {
-    id: 4,
-    symbol: "GOOGL",
-    name: "Alphabet Inc.",
-    currentPrice: 145.75,
-    dcfValue: 160.0,
-    marginOfSafety: 9.8,
-    rating: 4.6,
+    symbol: "9988.HK",
+    name: "Alibaba",
+    currentPrice: 130,
+    dcfValue: 161.3,
+    marginOfSafety: 0,
+    rating: 4.5,
     sector: "Technology",
   },
   {
     id: 5,
-    symbol: "AMZN",
-    name: "Amazon.com, Inc.",
-    currentPrice: 185.5,
-    dcfValue: 210.0,
-    marginOfSafety: 13.2,
-    rating: 4.4,
-    sector: "Retail",
-  },
-  {
-    id: 6,
-    symbol: "NVDA",
-    name: "NVIDIA Corporation",
-    currentPrice: 950.0,
-    dcfValue: 1100.0,
-    marginOfSafety: 15.8,
-    rating: 4.8,
-    sector: "Semiconductors",
-  },
-  {
-    id: 7,
-    symbol: "JNJ",
-    name: "Johnson & Johnson",
-    currentPrice: 160.25,
-    dcfValue: 175.0,
-    marginOfSafety: 9.2,
-    rating: 4.3,
-    sector: "Healthcare",
-  },
-  {
-    id: 8,
-    symbol: "XOM",
-    name: "Exxon Mobil Corporation",
-    currentPrice: 120.5,
-    dcfValue: 130.0,
-    marginOfSafety: 7.9,
-    rating: 4.1,
-    sector: "Energy",
-  },
-  {
-    id: 9,
-    symbol: "JPM",
-    name: "JPMorgan Chase & Co.",
-    currentPrice: 200.75,
-    dcfValue: 220.0,
-    marginOfSafety: 9.6,
+    symbol: "1211.HK",
+    name: "BYD",
+    currentPrice: 130,
+    dcfValue: 424.9,
+    marginOfSafety: 0,
     rating: 4.5,
-    sector: "Financials",
+    sector: "Technology",
   },
+  {
+    id: 3,
+    symbol: "GOOG",
+    name: "Google",
+    currentPrice: 173,
+    dcfValue: 173,
+    marginOfSafety: 0,
+    rating: 4.5,
+    sector: "Technology",
+  },
+  {
+    id: 4,
+    symbol: "AMZN",
+    name: "Amazon",
+    currentPrice: 173,
+    dcfValue: 190,
+    marginOfSafety: 0,
+    rating: 4.5,
+    sector: "Technology",
+  },
+  // ... rest of placeholder data remains the same
 ];
 
 export function TopPicksTable() {
@@ -121,7 +83,26 @@ export function TopPicksTable() {
     direction: "desc",
   });
 
-  const sortedData = [...placeholderData].sort((a, b) => {
+  // Get symbols from placeholder data
+  const symbols = placeholderData.map((stock) => stock.symbol);
+  const { data: stockData, loading, error } = useStockDataFetcher(symbols);
+
+  // Merge API data with placeholder data
+  const mergedData = placeholderData.map((stock) => {
+    const fetchedStock = stockData.find((s) => s.symbol === stock.symbol);
+    const updatedPrice = fetchedStock?.price || stock.currentPrice;
+    const marginOfSafety =
+      ((stock.dcfValue - updatedPrice) / stock.dcfValue) * 100;
+
+    return {
+      ...stock,
+      currentPrice: updatedPrice,
+      name: fetchedStock?.name || stock.name,
+      marginOfSafety: Number(marginOfSafety.toFixed(2)), // Ensures 1dpo as a number
+    };
+  });
+
+  const sortedData = [...mergedData].sort((a, b) => {
     if (a[sortConfig.key] < b[sortConfig.key]) {
       return sortConfig.direction === "asc" ? -1 : 1;
     }
@@ -138,6 +119,14 @@ export function TopPicksTable() {
     }
     setSortConfig({ key, direction });
   };
+
+  if (loading) {
+    return <div>Loading stock data...</div>;
+  }
+
+  if (error) {
+    return <div>Please be patient while we review our top picks</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -194,7 +183,7 @@ export function TopPicksTable() {
                 <th className="p-3">Symbol</th>
                 <th className="p-3">Name</th>
                 <th className="p-3">Price</th>
-                <th className="p-3">DCF Value</th>
+                <th className="p-3">Our Value</th>
                 <th className="p-3">Margin of Safety</th>
                 <th className="p-3">Rating</th>
               </tr>
@@ -206,7 +195,7 @@ export function TopPicksTable() {
                   <td className="p-3">{stock.name}</td>
                   <td className="p-3">${stock.currentPrice.toFixed(2)}</td>
                   <td className="p-3">${stock.dcfValue.toFixed(2)}</td>
-                  <td className="p-3">{stock.marginOfSafety.toFixed(1)}%</td>
+                  <td className="p-3">{stock.marginOfSafety}%</td>
                   <td className="p-3">{stock.rating.toFixed(1)}</td>
                 </tr>
               ))}

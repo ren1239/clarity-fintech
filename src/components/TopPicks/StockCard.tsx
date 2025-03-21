@@ -25,7 +25,7 @@ export function StockCard({ stock }: StockCardProps) {
     <Card className="p-4 hover:shadow-lg transition-shadow min-h-[280px] flex flex-col">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
-          <span className="font-bold text-lg">{stock.symbol}</span>
+          <span className="font-bold text-xs">{stock.symbol}</span>
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold truncate">{stock.name}</h3>
@@ -53,13 +53,12 @@ export function StockCard({ stock }: StockCardProps) {
           <span className="font-medium">${stock.currentPrice.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span>DCF Value</span>
+          <span>Our Value</span>
           <span className="font-medium">${stock.dcfValue.toFixed(2)}</span>
         </div>
-        <div className="space-y-1">
-          <div className="flex justify-between text-sm">
+        <div className="space-y-1 mt-11 border-t-8 pt-8 text-center">
+          <div className="text-sm">
             <span>Margin of Safety</span>
-            <span className="font-medium">{stock.marginOfSafety}%</span>
           </div>
           <div className="group relative h-6 rounded-full overflow-hidden bg-gradient-to-r from-[#D64550] to-[#2A9D90]">
             {/* Black Indicator Line */}
@@ -75,7 +74,7 @@ export function StockCard({ stock }: StockCardProps) {
           </div>
 
           {/* Centered Percentage Display */}
-          <div className="text-center text-sm font-medium mt-1">
+          <div className="text-sm font-medium mt-1">
             <span>
               {stock.marginOfSafety > 0 ? "+" : ""}
               {stock.marginOfSafety}%
