@@ -6,16 +6,19 @@ import { SavingsData } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 
-// FIX: Ensures synchronous params in Next.js 15+
+// Required for dynamic server rendering in Next.js 15+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default async function CompoundCalculatorPage({
-  params,
-}: {
-  params: { id: string };
+// FIX: params is now a PROMISE in Next.js 15
+export default async function CompoundCalculatorPage(props: {
+  params: Promise<{ id: string }>;
 }) {
   noStore();
+
+  // unwrap the params Promise
+  const { params } = props;
+  const { id } = await params;
 
   const { getUser } = getKindeServerSession();
   const user = await getUser();
@@ -61,7 +64,7 @@ export default async function CompoundCalculatorPage({
         <div className="shrink-0 flex-[0.3] lg:w-[200px]">
           <SavingsForm
             dbData={dbData!}
-            userId={params.id}
+            userId={id} // ← Corrected: params.id → id
             setDefaultSavingsData={setDefaultSavingsData}
           />
         </div>

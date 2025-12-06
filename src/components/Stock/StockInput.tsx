@@ -18,7 +18,6 @@ import { StockNameType } from "@/types";
 
 //Define the type for stock name data
 
-
 export default function StockInput() {
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<StockNameType[]>([]);
@@ -29,8 +28,8 @@ export default function StockInput() {
   //Create a useCallback Hook to memoize the function, ensuring that a re-render does not happen
   //If Debounce or AbortController resets, its useless
 
-  const fetchSuggestions = useCallback(
-    debounce(async (searchTerm: string) => {
+  const fetchSuggestions = useCallback(async (searchTerm: string) => {
+    const debouncedFn = debounce(async (term: string) => {
       if (searchTerm.length === 0) {
         setSuggestions([]);
         return;
@@ -78,9 +77,9 @@ export default function StockInput() {
         console.error("Error fetching data", error.message);
         setError(true);
       }
-    }, 300), //set the delay of the function
-    []
-  );
+    }, 300);
+    return debouncedFn(searchTerm);
+  }, []);
 
   //Call a useEffect to fetch each time the query changes
   useEffect(() => {
