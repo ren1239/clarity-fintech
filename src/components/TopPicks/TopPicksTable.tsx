@@ -6,12 +6,17 @@ import { ArrowUpDown, Table, List } from "lucide-react";
 import { StockCard } from "./StockCard";
 import { useStockDataFetcher } from "./StockDataFetcher";
 
+//
+// ─── INTERFACES ────────────────────────────────────────────────────────────────
+//
+
 interface StockData {
   id: number;
   symbol: string;
   name: string;
   currentPrice: number;
   dcfValue: number;
+  morningstarValue: number;
   marginOfSafety: number;
   rating: number;
   sector: string;
@@ -22,15 +27,20 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
-const placeholderData = [
+//
+// ─── PLACEHOLDER DATA ──────────────────────────────────────────────────────────
+//
+
+const placeholderData: StockData[] = [
   {
     id: 1,
     symbol: "META",
     name: "Meta",
     currentPrice: 189.25,
     dcfValue: 670,
+    morningstarValue: 0,
     marginOfSafety: 0,
-    rating: 4.5,
+    rating: 4.9,
     sector: "Technology",
   },
   {
@@ -39,6 +49,7 @@ const placeholderData = [
     name: "Alibaba",
     currentPrice: 130,
     dcfValue: 161.3,
+    morningstarValue: 0,
     marginOfSafety: 0,
     rating: 4.5,
     sector: "Technology",
@@ -48,9 +59,10 @@ const placeholderData = [
     symbol: "1211.HK",
     name: "BYD",
     currentPrice: 130,
-    dcfValue: 424.9,
+    dcfValue: 114.4,
+    morningstarValue: 0,
     marginOfSafety: 0,
-    rating: 4.5,
+    rating: 4.2,
     sector: "Technology",
   },
   {
@@ -58,9 +70,10 @@ const placeholderData = [
     symbol: "GOOG",
     name: "Google",
     currentPrice: 173,
-    dcfValue: 173,
+    dcfValue: 230,
+    morningstarValue: 0,
     marginOfSafety: 0,
-    rating: 4.5,
+    rating: 4.9,
     sector: "Technology",
   },
   {
@@ -69,12 +82,51 @@ const placeholderData = [
     name: "Amazon",
     currentPrice: 173,
     dcfValue: 190,
+    morningstarValue: 0,
     marginOfSafety: 0,
-    rating: 4.5,
+    rating: 4.8,
     sector: "Technology",
   },
-  // ... rest of placeholder data remains the same
+
+  // New entries
+  {
+    id: 6,
+    symbol: "1810.HK",
+    name: "Xiaomi",
+    currentPrice: 0,
+    dcfValue: 44.21,
+    morningstarValue: 0,
+    marginOfSafety: 0,
+    rating: 4.2,
+    sector: "Technology",
+  },
+  {
+    id: 7,
+    symbol: "0700.HK",
+    name: "Tencent",
+    currentPrice: 0,
+    dcfValue: 605,
+    morningstarValue: 0,
+    marginOfSafety: 0,
+    rating: 4.8,
+    sector: "Technology",
+  },
+  {
+    id: 8,
+    symbol: "NVDA",
+    name: "Nvidia",
+    currentPrice: 0,
+    dcfValue: 170,
+    morningstarValue: 0,
+    marginOfSafety: 0,
+    rating: 4.9,
+    sector: "Technology",
+  },
 ];
+
+//
+// ─── COMPONENT ─────────────────────────────────────────────────────────────────
+//
 
 export function TopPicksTable() {
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
@@ -83,14 +135,15 @@ export function TopPicksTable() {
     direction: "desc",
   });
 
-  // Get symbols from placeholder data
+  // Fetch API prices
   const symbols = placeholderData.map((stock) => stock.symbol);
   const { data: stockData, loading, error } = useStockDataFetcher(symbols);
 
-  // Merge API data with placeholder data
-  const mergedData = placeholderData.map((stock) => {
+  // Merge API data with placeholders
+  const mergedData: StockData[] = placeholderData.map((stock) => {
     const fetchedStock = stockData.find((s) => s.symbol === stock.symbol);
     const updatedPrice = fetchedStock?.price || stock.currentPrice;
+
     const marginOfSafety =
       ((stock.dcfValue - updatedPrice) / stock.dcfValue) * 100;
 
@@ -98,10 +151,11 @@ export function TopPicksTable() {
       ...stock,
       currentPrice: updatedPrice,
       name: fetchedStock?.name || stock.name,
-      marginOfSafety: Number(marginOfSafety.toFixed(2)), // Ensures 1dpo as a number
+      marginOfSafety: Number(marginOfSafety.toFixed(2)),
     };
   });
 
+  // Sorting logic
   const sortedData = [...mergedData].sort((a, b) => {
     if (a[sortConfig.key] < b[sortConfig.key]) {
       return sortConfig.direction === "asc" ? -1 : 1;
@@ -120,13 +174,12 @@ export function TopPicksTable() {
     setSortConfig({ key, direction });
   };
 
-  if (loading) {
-    return <div>Loading stock data...</div>;
-  }
+  if (loading) return <div>Loading stock data...</div>;
+  if (error) return <div>Please be patient while we review our top picks</div>;
 
-  if (error) {
-    return <div>Please be patient while we review our top picks</div>;
-  }
+  //
+  // ─── RENDER ───────────────────────────────────────────────────────────────────
+  //
 
   return (
     <div className="space-y-4">
@@ -143,6 +196,7 @@ export function TopPicksTable() {
           )}
           {viewMode === "cards" ? "Table View" : "Card View"}
         </Button>
+
         <Button
           variant="outline"
           onClick={() => requestSort("marginOfSafety")}
@@ -151,6 +205,7 @@ export function TopPicksTable() {
           <ArrowUpDown className="h-4 w-4" />
           Sort by Safety
         </Button>
+
         <Button
           variant="outline"
           onClick={() => requestSort("rating")}
@@ -159,6 +214,7 @@ export function TopPicksTable() {
           <ArrowUpDown className="h-4 w-4" />
           Sort by Rating
         </Button>
+
         <Button
           variant="outline"
           onClick={() => requestSort("dcfValue")}
@@ -169,6 +225,7 @@ export function TopPicksTable() {
         </Button>
       </div>
 
+      {/* CARD VIEW */}
       {viewMode === "cards" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedData.map((stock) => (
@@ -176,6 +233,7 @@ export function TopPicksTable() {
           ))}
         </div>
       ) : (
+        // TABLE VIEW
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left border-b">
@@ -184,10 +242,12 @@ export function TopPicksTable() {
                 <th className="p-3">Name</th>
                 <th className="p-3">Price</th>
                 <th className="p-3">Our Value</th>
+                <th className="p-3">Morningstar FV</th>
                 <th className="p-3">Margin of Safety</th>
                 <th className="p-3">Rating</th>
               </tr>
             </thead>
+
             <tbody>
               {sortedData.map((stock) => (
                 <tr key={stock.id} className="border-b hover:bg-gray-50">
@@ -195,6 +255,11 @@ export function TopPicksTable() {
                   <td className="p-3">{stock.name}</td>
                   <td className="p-3">${stock.currentPrice.toFixed(2)}</td>
                   <td className="p-3">${stock.dcfValue.toFixed(2)}</td>
+                  <td className="p-3">
+                    {stock.morningstarValue
+                      ? `$${stock.morningstarValue}`
+                      : "-"}
+                  </td>
                   <td className="p-3">{stock.marginOfSafety}%</td>
                   <td className="p-3">{stock.rating.toFixed(1)}</td>
                 </tr>

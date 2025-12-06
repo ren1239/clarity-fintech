@@ -3,6 +3,7 @@
 import { APIStockDataWrapper } from "@/APItypes";
 
 import { DcfValueCard } from "@/components/DcfCalculator/DcfValueCard";
+import NewDCFValuation from "@/components/DcfCalculator/NewDCFValuation";
 import { MarginOfSafetyCard } from "@/components/DcfCalculator/MarginOfSafetyCard";
 import { StockPriceCard } from "@/components/DcfCalculator/StockPriceCard";
 import { TableDialogue } from "@/components/DcfCalculator/TableDialogue";
@@ -176,6 +177,32 @@ export default function DCFCalculatorPage({
           {/*  Analyst Estimates Card Section */}
           <div className="grow space-y-4">
             <AnalystEstimatesCard analystEstimates={data.analystEstimates} />
+          </div>
+
+          {/* New DCF Visualization */}
+          <div className="mt-8">
+            <Card className="p-6">
+              <CardHeader>
+                <CardTitle>DCF Visualization</CardTitle>
+              </CardHeader>
+              <NewDCFValuation
+                stockData={{
+                  currentFCF: dcfInput.fcf,
+                  sharesOutstanding: dcfInput.sharesOutstanding,
+                  marketCap:
+                    (data.marketPrice?.historical?.[0]?.close || 0) *
+                    (dcfInput.sharesOutstanding || 0),
+                  epsProjections:
+                    data.analystEstimates?.map((e) => e.estimatedEpsAvg) || [],
+                  currentPrice: dcfInput.stockPrice,
+                  historicalPrices: data.marketPrice.historical.map(
+                    (h) => h.close
+                  ),
+                  reportedCurrency: dcfInput.reportedCurrency,
+                  stockCurrency: dcfInput.stockCurrency,
+                }}
+              />
+            </Card>
           </div>
         </div>
       </div>
