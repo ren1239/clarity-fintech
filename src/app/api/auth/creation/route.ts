@@ -32,5 +32,5 @@ export async function GET() {
       },
     });
   }
-  return NextResponse.redirect("https://clarity-fintech.vercel.app");
+  return NextResponse.redirect("https://clarity.clearwaterscapital.com/");
 }
