@@ -7,6 +7,9 @@ import { SavingsData } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 
+// FIX: Ensures synchronous params in Next.js 15+
+export const dynamic = "force-dynamic";
+
 export default async function CompoundCalculatorPage({
   params,
 }: {
@@ -14,16 +17,8 @@ export default async function CompoundCalculatorPage({
 }) {
   noStore();
 
-  //Find the user from kindeServer Session or bounce an unknown user
-
   const { getUser } = getKindeServerSession();
   const user = await getUser();
-
-  // if (!user || user.id !== params.id) {
-  //   redirect("/");
-  // }
-
-  // Define the data from the server
 
   const savingsData = await prisma.savings.findFirst({
     where: {
@@ -40,7 +35,6 @@ export default async function CompoundCalculatorPage({
     },
   });
 
-  // Define default values
   const defaultSavingsData = {
     id: "guestData",
     principal: 10000,
@@ -51,8 +45,6 @@ export default async function CompoundCalculatorPage({
     annualExpense: 35000,
   };
 
-  //If savingsData exists, it will overide the default values
-
   const dbData: SavingsData = {
     ...defaultSavingsData,
     ...savingsData,
@@ -62,14 +54,12 @@ export default async function CompoundCalculatorPage({
 
   return (
     <>
-      <div className=" flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
+      <div className="flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
         <DecorativeBackground rotation={90} translation={55} />
-        <div className=" mx-auto w-full grow lg:flex px-6 xl:px-8 gap-x-4 space-y-4 lg:space-y-0">
-          {/* Left Side Chart */}
+        <div className="mx-auto w-full grow lg:flex px-6 xl:px-8 gap-x-4 space-y-4 lg:space-y-0">
           <div className="flex-1 ">
             <LifeCalculatorCard dbData={dbData!} />
           </div>
-          {/* Right Form  */}
 
           <div className="shrink-0 flex-[0.3] lg:w-[200px] ">
             <SavingsForm
