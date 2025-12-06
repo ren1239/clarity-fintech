@@ -50,7 +50,7 @@ export default async function Navbar() {
                 size: "sm",
               })}
             >
-              Life Calculator
+              Compound Calculator
             </Link>
             <Link
               href="/retirement_calculator"

@@ -43,7 +43,7 @@ export default async function DropDownBurger() {
               size: "sm",
             })}
           >
-            Life Calculator
+            Compound Calculator
           </Link>
         </DropdownMenuItem>
 
