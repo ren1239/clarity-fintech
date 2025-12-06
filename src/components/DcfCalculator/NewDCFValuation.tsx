@@ -193,7 +193,7 @@ function generateMockData(
   return { data, minValue };
 }
 
-export default function StockProjectionChart() {
+export default function NewDCFValuation({ stockData }: any) {
   const [epsProjections, setEpsProjections] = useState(
     mockFinancialData.epsProjections
   );

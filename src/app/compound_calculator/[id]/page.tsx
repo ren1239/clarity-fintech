@@ -2,13 +2,13 @@ import prisma from "@/app/lib/db";
 import LifeCalculatorCard from "@/components/LifeCalculator/LifeCalculatorCard";
 import DecorativeBackground from "@/components/decorative/DecorativeBackground";
 import { SavingsForm } from "@/components/SavingsForm";
-import { Card } from "@/components/ui/card";
 import { SavingsData } from "@/types";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 
 // FIX: Ensures synchronous params in Next.js 15+
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export default async function CompoundCalculatorPage({
   params,
@@ -21,9 +21,7 @@ export default async function CompoundCalculatorPage({
   const user = await getUser();
 
   const savingsData = await prisma.savings.findFirst({
-    where: {
-      userId: user?.id,
-    },
+    where: { userId: user?.id },
     select: {
       id: true,
       principal: true,
@@ -53,23 +51,21 @@ export default async function CompoundCalculatorPage({
   const setDefaultSavingsData = null;
 
   return (
-    <>
-      <div className="flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
-        <DecorativeBackground rotation={90} translation={55} />
-        <div className="mx-auto w-full grow lg:flex px-6 xl:px-8 gap-x-4 space-y-4 lg:space-y-0">
-          <div className="flex-1 ">
-            <LifeCalculatorCard dbData={dbData!} />
-          </div>
+    <div className="flex-1 pt-4 justify-between flex flex-col h-[calc(100vh-4.5rem)]">
+      <DecorativeBackground rotation={90} translation={55} />
+      <div className="mx-auto w-full grow lg:flex px-6 xl:px-8 gap-x-4 space-y-4 lg:space-y-0">
+        <div className="flex-1">
+          <LifeCalculatorCard dbData={dbData!} />
+        </div>
 
-          <div className="shrink-0 flex-[0.3] lg:w-[200px] ">
-            <SavingsForm
-              dbData={dbData!}
-              userId={params.id}
-              setDefaultSavingsData={setDefaultSavingsData}
-            />
-          </div>
+        <div className="shrink-0 flex-[0.3] lg:w-[200px]">
+          <SavingsForm
+            dbData={dbData!}
+            userId={params.id}
+            setDefaultSavingsData={setDefaultSavingsData}
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 }
